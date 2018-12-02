@@ -60,8 +60,30 @@
          "width":160,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "name":"points",
+         "objects":[
+                {
+                 "height":0,
+                 "id":3,
+                 "name":"spawnpoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":36,
+                 "y":55.25
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextobjectid":1,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.6",
