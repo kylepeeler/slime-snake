@@ -6,6 +6,8 @@ const IGNORE_MAP_COLLISION = false;
 
 const SLIME_START_COLOR = 'green';
 
+const SLIME_SPEED = 100;
+
 const TINT_MAP = {
   red: 0xff0000,
   green: 0x00ff00,
@@ -349,6 +351,7 @@ function removeSlime(scene) {
   }
 
   scene.movingSlime.body.setVelocity(0);
+  scene.movingSlime.depth -= 2;
   scene.movingSlime.play("slime_dead");
 
   scene.movingSlime = followingSlimes[0];
@@ -697,7 +700,7 @@ function update(time, delta) {
     this.followingSlimes.children.entries[i].y = this.slimePos[idx + 1];
   }
   // Apply the controls to the camera each update tick of the game
-  const speed = 50;
+  const speed = SLIME_SPEED;
 
   // Stop any previous movement from the last frame
   this.movingSlime.body.setVelocity(0);
