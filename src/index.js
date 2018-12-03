@@ -149,8 +149,50 @@ function removeSlime(scene) {
   }
 }
 
-function rotateSlimes() {
+function deRotateSlimes() {
+	const scene = this;
+	const followingSlimes = scene.followingSlimes.children.entries;
+	const numSlimes = followingSlimes.length;
+	if (numSlimes < 2) {
+		console.error("Not enough slimes to rotate!");
+		return;
+	}
 
+	const tempSlime = scene.movingSlime;
+
+	scene.movingSlime = followingSlimes.pop();
+	followingSlimes.unshift(tempSlime);
+
+	// Remove old collisions
+	scene.physics.world.colliders.destroy();
+
+	// Add new collisions
+	addLayerCollision(scene, scene.movingSlime);
+
+	scene.cameras.main.startFollow(scene.movingSlime);
+}
+
+function rotateSlimes() {
+	const scene = this;
+	const followingSlimes = scene.followingSlimes.children.entries;
+	const numSlimes = followingSlimes.length;
+	if (numSlimes < 2) {
+		console.error("Not enough slimes to rotate!");
+		return;
+	}
+
+	const tempSlime = scene.movingSlime;
+
+	scene.movingSlime = followingSlimes.shift();
+	followingSlimes.push(tempSlime);
+
+	// Remove old collisions
+	scene.physics.world.colliders.destroy();
+
+	// Add new collisions
+	addLayerCollision(scene, scene.movingSlime);
+
+	scene.cameras.main.startFollow(scene.movingSlime);
 }
 
 function staticSlimeCollision(movingSlime, staticSlime) {
@@ -262,6 +304,9 @@ function create() {
 
   // Set up the arrows to control the camera
   cursors = this.input.keyboard.createCursorKeys();
+
+	this.input.keyboard.on('keydown_A', deRotateSlimes, this);
+	this.input.keyboard.on('keydown_D', rotateSlimes, this);
 
   // Constrain the camera so that it isn't allowed to move outside the width/height of tilemap
   camera.startFollow(this.movingSlime);
