@@ -98,7 +98,7 @@ const COMBAT_MAP = {
 const config = {
   type: Phaser.AUTO,
   width: 320,
-  height: 240,
+  height: 200,
   pixelArt: true,
   parent: 'game',
   canvasStyle: 'zoom: 200%',
