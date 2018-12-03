@@ -161,7 +161,6 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
       y,
       "slime"
     );
-    console.log('GOT ' + slimeColor);
     
     slime.setTint(TINT_MAP[slimeColor]);
     scene.followingSlimes.add(slime);
