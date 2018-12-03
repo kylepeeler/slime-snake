@@ -153,7 +153,7 @@ function addLayerCollision(scene, body) {
   scene.collisionLayers.forEach(layer => {
 	  scene.physics.add.collider(body, layer);
   });
-	scene.physics.add.collider(body, scene.wizards);
+	scene.physics.add.collider(body, scene.wizards, wizardColliderCallback);
 }
 
 function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
@@ -248,6 +248,11 @@ function staticSlimeCollision(movingSlime, staticSlime) {
   staticSlime.disableBody(true, true);
 	addSlime(movingSlime.scene, staticSlime.color);
 	return false;
+}
+
+function wizardColliderCallback(movingSlime, wizard) {
+	// TODO: Combat things!
+	wizard.disableBody(true, true);
 }
 
 // Runs once, after all assets in preload are loaded
