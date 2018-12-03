@@ -460,7 +460,7 @@ function determineCombat(sceneRef, obj1, obj1DeathCallback, obj1AttackAnim, obj2
 
 	if (obj2.combat.current < 1) {
 		if (obj2.healthBar) {
-			// obj2.healthBar.destroy();
+			obj2.healthBar.setVisible(false);
 		}
 		if(obj2DeathCallback) {
 			obj2DeathCallback(sceneRef, obj1, obj2);
