@@ -347,7 +347,7 @@ function removeSlime(scene) {
 
   const numSlimes = followingSlimes.length;
   if (numSlimes === 0) {
-    console.error("We have no slimes left!");
+    scene.game.scene.pause("default");
     return;
   }
 
@@ -433,7 +433,7 @@ function determineCombat(sceneRef, obj1, obj1DeathCallback, obj1AttackAnim, obj2
 		if (obj1AttackAnim) {
 			obj1.anims.play(obj1AttackAnim);
 		}
-		obj2.combat.current -= obj1.combat.attack;
+		obj2.combat.current = Math.max(0, obj2.combat.current - obj1.combat.attack);
 		obj1.combat.lastAttack = currentTime;
 	}
 	if (!obj2.combat.lastAttack || obj2.combat.lastAttack + obj2.combat.attackPeriod < currentTime) {
@@ -441,7 +441,7 @@ function determineCombat(sceneRef, obj1, obj1DeathCallback, obj1AttackAnim, obj2
 			obj2.anims.stop();
 			obj2.anims.play(obj2AttackAnim);
 		}
-		obj1.combat.current -= obj2.combat.attack;
+		obj1.combat.current = Math.max(0, obj1.combat.current - obj2.combat.attack);
 		obj2.combat.lastAttack = currentTime;
 	}
 
