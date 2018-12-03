@@ -115,6 +115,11 @@ const config = {
   }
 };
 
+function endGame(scene) {
+	scene.game.scene.pause("default");
+	// TODO: end game stuff
+}
+
 const game = new Phaser.Game(config);
 let cursors;
 
@@ -347,7 +352,7 @@ function removeSlime(scene) {
 
   const numSlimes = followingSlimes.length;
   if (numSlimes === 0) {
-    scene.game.scene.pause("default");
+    endGame(scene);
     return;
   }
 
