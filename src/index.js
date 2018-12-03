@@ -343,7 +343,7 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
     
     slime.setTint(TINT_MAP[slimeColor]);
     slime.color = slimeColor;
-    slime.combat = COMBAT_MAP.slime[slimeColor];
+    slime.combat = Object.assign({}, COMBAT_MAP.slime[slimeColor]);
     scene.followingSlimes.add(slime);
 }
 
@@ -357,7 +357,7 @@ function removeSlime(scene) {
   }
 
   scene.movingSlime.body.setVelocity(0);
-  scene.movingSlime.depth -= 2;
+  scene.movingSlime.depth -= 20;
   scene.movingSlime.play("slime_dead");
 
   scene.movingSlime = followingSlimes[0];
@@ -459,6 +459,9 @@ function determineCombat(sceneRef, obj1, obj1DeathCallback, obj1AttackAnim, obj2
 	}
 
 	if (obj2.combat.current < 1) {
+		if (obj2.healthBar) {
+			// obj2.healthBar.destroy();
+		}
 		if(obj2DeathCallback) {
 			obj2DeathCallback(sceneRef, obj1, obj2);
 		} else {
@@ -534,10 +537,14 @@ function create() {
 
 		tempWiz.color = wizardColor;
 		tempWiz.combat = Object.assign({}, COMBAT_MAP.wizard[wizardColor]);tempWiz.anims.play(`wizard_${wizardColor}_idle`, true);
-    this.wizards.add(tempWiz);
 
-    });this.slimeCollideWaterLayer1 = true;
-    this.slimeCollideWaterLayer2 = true;
+		tempWiz.healthBar = this.add.graphics(wizardSpawn.x, wizardSpawn.y);
+
+    this.wizards.add(tempWiz);
+	});
+
+	this.slimeCollideWaterLayer1 = true;
+	this.slimeCollideWaterLayer2 = true;
 
   
   // We're going to assume anything starting with "slime-..." is a spawn for a slime. determine color later
@@ -774,8 +781,27 @@ function update(time, delta) {
   //top-down layering
   this.movingSlime.depth = this.movingSlime.y;
 	this.staticSlimes.children.entries.forEach(staticSlime => staticSlime.depth = this.movingSlime.depth);
-	this.wizards.children.entries.forEach(wizard => wizard.depth = this.movingSlime.depth);
-	this.knights.children.entries.forEach(knight => knight.depth = this.movingSlime.depth);
+	this.wizards.children.entries.forEach(wizard => {
+		wizard.depth = this.movingSlime.depth;
+
+		const graphics = wizard.healthBar;
+		const currentHealthRatio = wizard.combat.current / wizard.combat.max;
+		if (currentHealthRatio > 0.5) {
+			graphics.fillStyle(0x00ff00);
+		} else if (currentHealthRatio > 0.25) {
+			graphics.fillStyle(0xffff00);
+		} else {
+			graphics.fillStyle(0xff0000);
+		}
+
+		graphics.fillRect(wizard.x - 11, wizard.y - 17, 10 * currentHealthRatio, 3);
+		graphics.setDepth(wizard.depth + 1);
+	});
+
+	this.knights.children.entries.forEach(knight => {
+		knight.depth = this.movingSlime.depth
+	});
+
   // Layer the slimes so they are all over the proceding one
   this.followingSlimes.children.entries.forEach(function(slime, index) {
     slime.depth = this.movingSlime.depth - 0.1 * (index + 1);
