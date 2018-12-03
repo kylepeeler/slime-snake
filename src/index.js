@@ -335,6 +335,7 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
     
     slime.setTint(TINT_MAP[slimeColor]);
     slime.color = slimeColor;
+    slime.combat = Object.assign({}, COMBAT_MAP.slime[slimeColor]);
     scene.followingSlimes.add(slime);
 }
 
