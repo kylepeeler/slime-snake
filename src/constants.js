@@ -4,7 +4,7 @@ export const IGNORE_MAP_COLLISION = false;
 
 export const SLIME_START_COLOR = 'green';
 
-export const SLIME_SPEED = 100;
+export const SLIME_SPEED = 60;
 
 export const TINT_MAP = {
 	red: 0xff0000,

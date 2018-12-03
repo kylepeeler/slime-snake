@@ -1,22 +1,27 @@
 # Slime Snake
+![Game Screenshot](screenshot.png)
+## CSCI 437 Final Project - Written by Kyle Peeler, Trent Spice, and Tim Hickam
 
-(Fill this in after we finish it. What is this game?)
+TODO: Brief game description
 
 ### Requirements
 
-We need [Node.js](https://nodejs.org) to install and run scripts.
+You need [Node.js](https://nodejs.org) to install and run scripts.
 
-## Install and run
+## User instructions
 
-Run next commands in your terminal:
+`cd` into the root directory of the game and run the following commands in your terminal:
 
 | Command | Description |
 |---------|-------------|
 | `npm install` | Install dependencies and launch browser with examples.|
-| `npm start` | Launch browser to show the examples. <br> Press `Ctrl + c` to kill **http-server** process. |
-=======
+| `npm start` | Launch browser to show the game. By default it runs on [http://localhost:8000](http://localhost:8000) <br> Press `Ctrl + c` to kill **http-server** process. |
 
-## Documentation
+# Documentation
+
+## Game Design Document
+TODO: Be sure to explain every main scene in your game and all the moving parts. Describe all the sprites, their interactions,
+how they are born and die, and what causes the scene to change states (if it does.) (merge with below?)
 
 ### Slimes
 | Color | Ability |
@@ -26,7 +31,7 @@ Run next commands in your terminal:
 | Green | Can attack wizards |
 | Purple | Can attack knights |
 
-### Enemies
+### Enemies (TODO: need to remove some?)
 | Color | Type | Ability |
 |-|-|-|
 | Red | Knight | Low HP |
@@ -58,3 +63,10 @@ Run next commands in your terminal:
 | 7 | wizard-red |
 | 8 | wizard-green |
 | 9 | wizard-blue |
+---
+## Software Engineering Plan
+TODO: Describe the structure of the team, each person's primary responsibilities, a proposed (and actual) time line with milestones identified, and any other documentation needed for process management.
+
+## State Transition Diagram
+TODO: State Transition Diagram - Please show a simple state transition diagram describing the various states in your game and how the transitions between these states occur.
+
