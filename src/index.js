@@ -3,11 +3,13 @@ import "phaser";
 const SHOW_DEBUG = false;
 
 const TINT_MAP = {
-	red: 0xFF0000,
-	green: 0x00FF00,
-	blue: 0x0000FF,
-	purple: 0xAA00FF
-}
+  red: 0xff0000,
+  green: 0x00ff00,
+  blue: 0x0000ff,
+  purple: 0xaa00ff,
+  yellow: 0xffff00
+};
+
 
 const config = {
   type: Phaser.AUTO,
@@ -28,21 +30,17 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-let cursors, movingSlime;
+let cursors;
 
 // Runs once, loads up assets like images and audio
 function preload() {
   this.load.image("dungeon-tiles", "../assets/tilesets/dungeon_tiles.png");
   this.load.tilemapTiledJSON("map", "../assets/tilemaps/level1.json");
-  this.load.spritesheet(
-    "slime",
-    "assets/spritesheets/slime.png",
-    {
-      frameWidth: 16,
-      frameHeight: 16,
-      endFrame: 15
-    }
-  );
+  this.load.spritesheet("slime", "assets/spritesheets/slime.png", {
+    frameWidth: 16,
+    frameHeight: 16,
+    endFrame: 15
+  });
 }
 
 function makeAnimations(scene) {
@@ -59,7 +57,7 @@ function makeAnimations(scene) {
 
   scene.anims.create({
     key: "slime_walk_left",
-	  frames: scene.anims.generateFrameNumbers("slime", {
+    frames: scene.anims.generateFrameNumbers("slime", {
       start: 3,
       end: 5,
       first: 3
@@ -70,7 +68,7 @@ function makeAnimations(scene) {
 
   scene.anims.create({
     key: "slime_walk_right",
-	  frames: scene.anims.generateFrameNumbers("slime", {
+    frames: scene.anims.generateFrameNumbers("slime", {
       start: 6,
       end: 8,
       first: 6
@@ -81,7 +79,7 @@ function makeAnimations(scene) {
 
   scene.anims.create({
     key: "slime_walk_up",
-	  frames: scene.anims.generateFrameNumbers("slime", {
+    frames: scene.anims.generateFrameNumbers("slime", {
       start: 9,
       end: 11,
       first: 9
@@ -114,13 +112,33 @@ function create() {
   doorLayer.setCollisionByProperty({ collide: true });
   objectsLayer.setCollisionByProperty({ collide: true });
 
-  movingSlime = this.physics.add.sprite(spawnPoint.x, spawnPoint.y, "slime");
-  movingSlime.setTint(TINT_MAP.purple)
-  console.log(movingSlime);
-  this.physics.add.collider(movingSlime, wallLayer);
-  this.physics.add.collider(movingSlime, waterLayer);
-  this.physics.add.collider(movingSlime, doorLayer);
-  this.physics.add.collider(movingSlime, objectsLayer);
+  this.followingSlimes = this.physics.add.group();
+  this.movingSlime = this.physics.add.sprite(
+    spawnPoint.x,
+    spawnPoint.y,
+    "slime"
+  );
+  var tints = [TINT_MAP.red, TINT_MAP.blue, TINT_MAP.purple, TINT_MAP.yellow]
+  for (let i = 0; i < 4; i++) {
+    let slime = this.physics.add.sprite(
+      spawnPoint.x - 10 - i * 8,
+      spawnPoint.y,
+      "slime"
+    );
+    slime.setTint(tints[i]);
+    this.followingSlimes.add(slime);
+  }
+  this.slimePosIndexOffset = 0;
+  this.slimePos = [];
+  for (var i = 0; i < 1000; i++) {
+    this.slimePos[i] = 0;
+  }
+  this.movingSlime.setTint(TINT_MAP.green);
+
+  this.physics.add.collider(this.movingSlime, wallLayer);
+  this.physics.add.collider(this.movingSlime, waterLayer);
+  this.physics.add.collider(this.movingSlime, doorLayer);
+  this.physics.add.collider(this.movingSlime, objectsLayer);
 
   if (SHOW_DEBUG) {
     const debugGraphics = this.add.graphics().setAlpha(0.75);
@@ -153,46 +171,83 @@ function create() {
   cursors = this.input.keyboard.createCursorKeys();
 
   // Constrain the camera so that it isn't allowed to move outside the width/height of tilemap
-  camera.startFollow(movingSlime);
+  camera.startFollow(this.movingSlime);
   camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 }
 
+// Runs once per frame for the duration of the scene
 function update(time, delta) {
-  // Runs once per frame for the duration of the scene
+  this.slimePos[this.slimePosIndexOffset] = this.movingSlime.x;
+  this.slimePos[this.slimePosIndexOffset + 1] = this.movingSlime.y;
+  this.slimePosIndexOffset = this.slimePosIndexOffset - 2;
+  if (this.slimePosIndexOffset < 0) this.slimePosIndexOffset = this.slimePosIndexOffset + 1000;
+  for (var i = 0; i < this.followingSlimes.children.size; i++) {
+    var idx = this.slimePosIndexOffset + (i + 1) * 30;
+    idx = idx % 1000;
+    this.followingSlimes.children.entries[i].x = this.slimePos[idx];
+    this.followingSlimes.children.entries[i].y = this.slimePos[idx + 1];
+  }
   // Apply the controls to the camera each update tick of the game
   //controls.update(delta);
-  const speed = 100;
+  const speed = 50;
 
   // Stop any previous movement from the last frame
-  movingSlime.body.setVelocity(0);
+  this.movingSlime.body.setVelocity(0);
 
   // Horizontal movement
   if (cursors.left.isDown) {
-    movingSlime.body.setVelocityX(-100);
+    this.movingSlime.body.setVelocityX(-speed);
   } else if (cursors.right.isDown) {
-    movingSlime.body.setVelocityX(100);
+    this.movingSlime.body.setVelocityX(speed);
   }
 
   // Vertical movement
   if (cursors.up.isDown) {
-    movingSlime.body.setVelocityY(-100);
+    this.movingSlime.body.setVelocityY(-speed);
   } else if (cursors.down.isDown) {
-    movingSlime.body.setVelocityY(100);
+    this.movingSlime.body.setVelocityY(speed);
   }
 
-  // Normalize and scale the velocity so that movingSlime can't move faster along a diagonal
-  movingSlime.body.velocity.normalize().scale(speed);
+  // Normalize and scale the velocity so that this.movingSlime can't move faster along a diagonal
+  this.movingSlime.body.velocity.normalize().scale(speed);
 
   // Update the animation last and give left/right animations precedence over up/down animations
   if (cursors.left.isDown) {
-    movingSlime.anims.play("slime_walk_left", true);
+    this.movingSlime.anims.play("slime_walk_left", true);
   } else if (cursors.right.isDown) {
-    movingSlime.anims.play("slime_walk_right", true);
+    this.movingSlime.anims.play("slime_walk_right", true);
   } else if (cursors.up.isDown) {
-    movingSlime.anims.play("slime_walk_up", true);
+    this.movingSlime.anims.play("slime_walk_up", true);
   } else if (cursors.down.isDown) {
-    movingSlime.anims.play("slime_walk_down", true);
+    this.movingSlime.anims.play("slime_walk_down", true);
   } else {
-    movingSlime.anims.stop();
+    this.movingSlime.anims.stop();
   }
+  //top-down layering
+  this.movingSlime.depth = this.movingSlime.y;
+  // Layer the slimes so they are all over the proceding one
+  this.followingSlimes.children.entries.forEach(function(slime, index) {
+    slime.depth = this.movingSlime.depth - 0.1 * (index + 1);
+  }, this);
+
+  this.followingSlimes.children.entries.forEach(function(slime, index) {
+    //console.log(slime.anims);
+	let animDir = "";
+    if (this.movingSlime.body.velocity.y > 0) {
+      animDir = "down";
+    } else if (this.movingSlime.body.velocity.x < 0) {
+      animDir = "left";
+    } else if (this.movingSlime.body.velocity.x > 0) {
+      animDir = "right";
+    } else if (this.movingSlime.body.velocity.y < 0) {
+      animDir = "up";
+    } else {
+      animDir = "down";
+    }
+    let anim = "slime_walk_" + animDir;
+    if (!slime.anims.isPlaying || anim !== slime.anims.currentAnim.key) {
+		console.log(slime);
+      slime.play(anim);
+    }
+  }, this);
 }
