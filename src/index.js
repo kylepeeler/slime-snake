@@ -12,6 +12,84 @@ const TINT_MAP = {
   yellow: 0xffff00
 };
 
+const COMBAT_MAP = {
+	slime: {
+		red: {
+			current: 50,
+			max: 50,
+			attack: 25,
+			attackPeriod: 1000,
+			lastAttack: null
+		},
+		green: {
+			current: 50,
+			max: 50,
+			attack: 25,
+			attackPeriod: 1000,
+			lastAttack: null
+		},
+		blue: {
+			current: 50,
+			max: 50,
+			attack: 25,
+			attackPeriod: 1000,
+			lastAttack: null
+		},
+		purple: {
+			current: 50,
+			max: 50,
+			attack: 25,
+			attackPeriod: 1000,
+			lastAttack: null
+		},
+		yellow: {
+			current: 50,
+			max: 50,
+			attack: 25,
+			attackPeriod: 1000,
+			lastAttack: null
+		},
+	},
+	wizard: {
+		blue: {
+			current: 25,
+			max: 25,
+			attack: 10,
+			attackPeriod: 1000,
+			lastAttack: null
+		},
+		green: {
+			current: 55,
+			max: 25,
+			attack: 30,
+			attackPeriod: 1000,
+			lastAttack: null
+		},
+		red: {
+			current: 30,
+			max: 30,
+			attack: 10,
+			attackPeriod: 1000,
+			lastAttack: null
+		}
+	},
+	knight: {
+		red: {
+			current: 55,
+			max: 25,
+			attack: 10,
+			attackPeriod: 1000,
+			lastAttack: null
+		},
+		silver: {
+			current: 25,
+			max: 25,
+			attack: 10,
+			attackPeriod: 1000,
+			lastAttack: null
+		}
+	}
+};
 
 const config = {
   type: Phaser.AUTO,
@@ -139,6 +217,17 @@ function makeAnimations(scene) {
 	});
 
 	scene.anims.create({
+		key: "wizard_blue_attack",
+		frames: scene.anims.generateFrameNumbers("wizard-blue", {
+			start: 0,
+			end: 3,
+			first: 0
+		}),
+		frameRate: 10,
+		repeat: 1
+	});
+
+	scene.anims.create({
 		key: "wizard_red_idle",
 		frames: scene.anims.generateFrameNumbers("wizard-red", {
 			start: 0,
@@ -147,6 +236,17 @@ function makeAnimations(scene) {
 		}),
 		frameRate: 10,
 		repeat: -1
+	});
+
+	scene.anims.create({
+		key: "wizard_red_attack",
+		frames: scene.anims.generateFrameNumbers("wizard-red", {
+			start: 0,
+			end: 3,
+			first: 0
+		}),
+		frameRate: 10,
+		repeat: 1
 	});
 
 	scene.anims.create({
@@ -161,6 +261,17 @@ function makeAnimations(scene) {
 	});
 
 	scene.anims.create({
+		key: "wizard_green_attack",
+		frames: scene.anims.generateFrameNumbers("wizard-green", {
+			start: 0,
+			end: 3,
+			first: 0
+		}),
+		frameRate: 10,
+		repeat: 1
+	});
+
+	scene.anims.create({
 		key: "knight_red_idle",
 		frames: scene.anims.generateFrameNumbers("knight-red", {
 			start: 0,
@@ -172,6 +283,17 @@ function makeAnimations(scene) {
 	});
 
 	scene.anims.create({
+		key: "knight_red_attack",
+		frames: scene.anims.generateFrameNumbers("knight-red", {
+			start: 0,
+			end: 3,
+			first: 0
+		}),
+		frameRate: 10,
+		repeat: 1
+	});
+
+	scene.anims.create({
 		key: "knight_silver_idle",
 		frames: scene.anims.generateFrameNumbers("knight-silver", {
 			start: 0,
@@ -180,6 +302,17 @@ function makeAnimations(scene) {
 		}),
 		frameRate: 10,
 		repeat: -1
+	});
+
+	scene.anims.create({
+		key: "knight_silver_attack",
+		frames: scene.anims.generateFrameNumbers("knight-silver", {
+			start: 0,
+			end: 3,
+			first: 0
+		}),
+		frameRate: 10,
+		repeat: 1
 	});
 }
 
@@ -197,26 +330,26 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
       y,
       "slime"
     );
-    
+
     slime.setTint(TINT_MAP[slimeColor]);
     slime.color = slimeColor;
     scene.followingSlimes.add(slime);
 }
 
 function removeSlime(scene) {
-  const followingSlimes = scene.followingSlimes.children.entries;
-  const numSlimes = followingSlimes.length;
-  if (numSlimes === 0) {
-    console.error("We have no slimes left!");
-    return;
-  }
+	const followingSlimes = scene.followingSlimes.children.entries;
+	const numSlimes = followingSlimes.length;
+	if (numSlimes === 0) {
+		console.error("We have no slimes left!");
+		return;
+	}
 
-  scene.movingSlime.body.setVelocity(0);
-  scene.movingSlime.play("slime_dead");
+	scene.movingSlime.body.setVelocity(0);
+	scene.movingSlime.play("slime_dead");
 
-  scene.movingSlime = followingSlimes[0];
+	scene.movingSlime = followingSlimes[0];
 
-  // Remove old collisions
+	// Remove old collisions
 	scene.physics.world.colliders.destroy();
 
 	// Add new collisions
@@ -224,14 +357,14 @@ function removeSlime(scene) {
 
 	scene.cameras.main.startFollow(scene.movingSlime);
 
-  for (let i = 0; i < numSlimes; i++) {
-    if (i + 1 === numSlimes) {
-      // Remove last slime
-      followingSlimes.splice(-1, 1);
-    } else {
-      followingSlimes[i] = followingSlimes[i + 1];
-    }
-  }
+	for (let i = 0; i < numSlimes; i++) {
+		if (i + 1 === numSlimes) {
+			// Remove last slime
+			followingSlimes.splice(-1, 1);
+		} else {
+			followingSlimes[i] = followingSlimes[i + 1];
+		}
+	}
 }
 
 function deRotateSlimes() {
@@ -281,25 +414,58 @@ function rotateSlimes() {
 }
 
 function staticSlimeCollision(movingSlime, staticSlime) {
-  staticSlime.disableBody(true, true);
+	staticSlime.disableBody(true, true);
 	addSlime(movingSlime.scene, staticSlime.color);
 	return false;
 }
 
+function determineCombat(sceneRef, obj1, obj1DeathCallback, obj1AttackAnim, obj2, obj2DeathCallback, obj2AttackAnim) {
+	const currentTime = Date.now();
+	if (!obj1.combat.lastAttack || obj1.combat.lastAttack + obj1.combat.attackPeriod < currentTime) {
+		if (obj1AttackAnim) {
+			obj1.anims.play(obj1AttackAnim);
+		}
+		obj2.combat.current -= obj1.combat.attack;
+		obj1.combat.lastAttack = currentTime;
+	}
+	if (!obj2.combat.lastAttack || obj2.combat.lastAttack + obj2.combat.attackPeriod < currentTime) {
+		if (obj2AttackAnim) {
+			obj2.anims.stop();
+			obj2.anims.play(obj2AttackAnim);
+		}
+		obj1.combat.current -= obj2.combat.attack;
+		obj2.combat.lastAttack = currentTime;
+	}
+
+	if (obj1.combat.current < 1) {
+		if (obj1DeathCallback) {
+			obj1DeathCallback(sceneRef, obj1, obj2);
+		} else {
+			obj1.disableBody(true, true);
+		}
+	}
+
+	if (obj2.combat.current < 1) {
+		if(obj2DeathCallback) {
+			obj2DeathCallback(sceneRef, obj1, obj2);
+		} else {
+			obj2.disableBody(true, true);
+		}
+	}
+}
+
 function wizardColliderCallback(movingSlime, wizard) {
-	// TODO: Combat things!
-	wizard.disableBody(true, true);
+	determineCombat(movingSlime.scene, movingSlime, removeSlime, undefined, wizard, undefined, `wizard_${wizard.color}_attack`);
 }
 
 function knightColliderCallback(movingSlime, knight) {
-	// TODO: Combat things!
-	knight.disableBody(true, true);
+	determineCombat(movingSlime.scene, movingSlime, removeSlime, undefined, knight, undefined, `knight_${knight.color}_attack`);
 }
 
 // Runs once, after all assets in preload are loaded
 function create() {
-  makeAnimations(this);
-  const map = this.make.tilemap({ key: "map" });
+	makeAnimations(this);
+	const map = this.make.tilemap({key: "map"});
 	const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
 
 	const knightSpawns = map.filterObjects("points", obj => obj.name.startsWith("knight-"));
@@ -313,17 +479,20 @@ function create() {
 			console.log(knightSpawn);
 		}
 
-		const knightColor = 'knight-' + KEY_PARTS[1];
+		const knightColor = KEY_PARTS[1];
 		let tempKnight = this.physics.add.sprite(
 			knightSpawn.x,
 			knightSpawn.y,
-			knightColor
+			'knight-' + knightColor
 		);
 
 		tempKnight.body.immovable = true;
 		tempKnight.body.moves = false;
 
-		tempKnight.anims.play(`knight_${KEY_PARTS[1]}_idle`, true);
+		tempKnight.combat = Object.assign({}, COMBAT_MAP.knight[knightColor]);
+		tempKnight.color = knightColor;
+
+		tempKnight.anims.play(`knight_${knightColor}_idle`, true);
 		this.knights.add(tempKnight);
 	});
 
@@ -338,42 +507,46 @@ function create() {
 			console.log(wizardSpawn);
 		}
 
-		const wizardColor = 'wizard-' + KEY_PARTS[1];
+		const wizardColor = KEY_PARTS[1];
 		let tempWiz = this.physics.add.sprite(
 			wizardSpawn.x,
 			wizardSpawn.y,
-			wizardColor
+			'wizard-' + wizardColor
 		);
 
 		tempWiz.body.immovable = true;
 		tempWiz.body.moves = false;
 
-		tempWiz.anims.play(`wizard_${KEY_PARTS[1]}_idle`, true);
+		tempWiz.color = wizardColor;
+		tempWiz.combat = Object.assign({}, COMBAT_MAP.wizard[wizardColor]);
+
+		tempWiz.anims.play(`wizard_${wizardColor}_idle`, true);
 		this.wizards.add(tempWiz);
 	});
-  
-  // We're going to assume anything starting with "slime-..." is a spawn for a slime. determine color later
-  const staticSlimes = map.filterObjects("points", obj => obj.name.startsWith("slime-"));
-  this.staticSlimes = this.physics.add.group();
 
-  staticSlimes.forEach(staticSlime => {
-	// Split the name so we can get the color. name should look like: "slime-COLOR-ID" or "slime-COLOR" if unique
-	const KEY_PARTS = staticSlime.name.split("-");
-	if (KEY_PARTS.length < 2) {
-		console.log("Error creating slime from spawn: " + staticSlime.name);
-		console.log(staticSlime);
-	}
-	let tempSlime = this.physics.add.sprite(
-      staticSlime.x,
-      staticSlime.y,
-      "slime"
-    );
-    console.log(KEY_PARTS[1], TINT_MAP[KEY_PARTS[1]]);
-    tempSlime.setTint(TINT_MAP[KEY_PARTS[1]]);
-    tempSlime.color = KEY_PARTS[1];
-    tempSlime.anims.play("slime_walk_down", true);
-    this.staticSlimes.add(tempSlime);
-  });	  
+	// We're going to assume anything starting with "slime-..." is a spawn for a slime. determine color later
+	const staticSlimes = map.filterObjects("points", obj => obj.name.startsWith("slime-"));
+	this.staticSlimes = this.physics.add.group();
+
+	staticSlimes.forEach(staticSlime => {
+		// Split the name so we can get the color. name should look like: "slime-COLOR-ID" or "slime-COLOR" if unique
+		const KEY_PARTS = staticSlime.name.split("-");
+		if (KEY_PARTS.length < 2) {
+			console.log("Error creating slime from spawn: " + staticSlime.name);
+			console.log(staticSlime);
+		}
+		let tempSlime = this.physics.add.sprite(
+			staticSlime.x,
+			staticSlime.y,
+			"slime"
+		);
+		console.log(KEY_PARTS[1], TINT_MAP[KEY_PARTS[1]]);
+		tempSlime.setTint(TINT_MAP[KEY_PARTS[1]]);
+		tempSlime.color = KEY_PARTS[1];
+		tempSlime.combat = Object.assign({}, COMBAT_MAP.slime[KEY_PARTS[1]]);
+		tempSlime.anims.play("slime_walk_down", true);
+		this.staticSlimes.add(tempSlime);
+	});
 
   // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
   // Phaser's cache (i.e. the name you used in preload)
@@ -411,13 +584,14 @@ function create() {
   //   slime.setTint(tints[i]);
   //   this.followingSlimes.add(slime);
   // }
-  
+
   this.slimePosIndexOffset = 0;
   this.slimePos = [];
   for (var i = 0; i < 1000; i++) {
     this.slimePos[i] = -50;
   }
   this.movingSlime.color = 'green';
+	this.movingSlime.combat = Object.assign({}, COMBAT_MAP.slime.green);
   this.movingSlime.setTint(TINT_MAP.green);
 
   addLayerCollision(this, this.movingSlime);
@@ -515,7 +689,7 @@ function update(time, delta) {
   } else {
     this.movingSlime.anims.play("slime_walk_down", true);
   }
-  
+
   //top-down layering
   this.movingSlime.depth = this.movingSlime.y;
 	this.staticSlimes.children.entries.forEach(staticSlime => staticSlime.depth = this.movingSlime.depth);
@@ -527,7 +701,7 @@ function update(time, delta) {
   }, this);
 
   this.followingSlimes.children.entries.forEach(function(slime, index) {
-	let animDir = "";
+		let animDir = "";
     if (this.movingSlime.body.velocity.y > 0) {
       animDir = "down";
     } else if (this.movingSlime.body.velocity.x < 0) {
