@@ -2,6 +2,8 @@ import "phaser";
 
 const SHOW_DEBUG = false;
 
+const IGNORE_MAP_COLLISION = false;
+
 const TINT_MAP = {
   red: 0xff0000,
   green: 0x00ff00,
@@ -55,6 +57,16 @@ function preload() {
 	this.load.spritesheet("wizard-green", "assets/spritesheets/wizard-green.png", {
 		frameWidth: 21,
 		frameHeight: 24,
+		endFrame: 3
+	});
+	this.load.spritesheet("knight-red", "assets/spritesheets/knight-red.png", {
+		frameWidth: 26,
+		frameHeight: 22,
+		endFrame: 3
+	});
+	this.load.spritesheet("knight-silver", "assets/spritesheets/knight-silver.png", {
+		frameWidth: 16,
+		frameHeight: 23,
 		endFrame: 3
 	});
 }
@@ -147,6 +159,28 @@ function makeAnimations(scene) {
 		frameRate: 10,
 		repeat: -1
 	});
+
+	scene.anims.create({
+		key: "knight_red_idle",
+		frames: scene.anims.generateFrameNumbers("knight-red", {
+			start: 0,
+			end: 0,
+			first: 0
+		}),
+		frameRate: 10,
+		repeat: -1
+	});
+
+	scene.anims.create({
+		key: "knight_silver_idle",
+		frames: scene.anims.generateFrameNumbers("knight-silver", {
+			start: 0,
+			end: 0,
+			first: 0
+		}),
+		frameRate: 10,
+		repeat: -1
+	});
 }
 
 function addLayerCollision(scene, body) {
@@ -154,6 +188,7 @@ function addLayerCollision(scene, body) {
 	  scene.physics.add.collider(body, layer);
   });
 	scene.physics.add.collider(body, scene.wizards, wizardColliderCallback);
+	scene.physics.add.collider(body, scene.knights, knightColliderCallback);
 }
 
 function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
@@ -256,17 +291,47 @@ function wizardColliderCallback(movingSlime, wizard) {
 	wizard.disableBody(true, true);
 }
 
+function knightColliderCallback(movingSlime, knight) {
+	// TODO: Combat things!
+	knight.disableBody(true, true);
+}
+
 // Runs once, after all assets in preload are loaded
 function create() {
   makeAnimations(this);
   const map = this.make.tilemap({ key: "map" });
 	const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
 
+	const knightSpawns = map.filterObjects("points", obj => obj.name.startsWith("knight-"));
+	this.knights = this.physics.add.group();
+
+	knightSpawns.forEach(knightSpawn => {
+		// Split the name so we can get the color. name should look like: "knight-COLOR-ID" or "knight-COLOR" if unique
+		const KEY_PARTS = knightSpawn.name.split("-");
+		if (KEY_PARTS.length < 2) {
+			console.log("Error creating knight from spawn: " + knightSpawn.name);
+			console.log(knightSpawn);
+		}
+
+		const knightColor = 'knight-' + KEY_PARTS[1];
+		let tempKnight = this.physics.add.sprite(
+			knightSpawn.x,
+			knightSpawn.y,
+			knightColor
+		);
+
+		tempKnight.body.immovable = true;
+		tempKnight.body.moves = false;
+
+		tempKnight.anims.play(`knight_${KEY_PARTS[1]}_idle`, true);
+		this.knights.add(tempKnight);
+	});
+
 	const wizardSpawns = map.filterObjects("points", obj => obj.name.startsWith("wizard-"));
 	this.wizards = this.physics.add.group();
 
 	wizardSpawns.forEach(wizardSpawn => {
-		// Split the name so we can get the color. name should look like: "wizard-COLOR-ID" or "slime-COLOR" if unique
+		// Split the name so we can get the color. name should look like: "wizard-COLOR-ID" or "wizard-COLOR" if unique
 		const KEY_PARTS = wizardSpawn.name.split("-");
 		if (KEY_PARTS.length < 2) {
 			console.log("Error creating wizard from spawn: " + wizardSpawn.name);
@@ -324,11 +389,11 @@ function create() {
   this.collisionLayers = [wallLayer, waterLayer1, waterLayer2, doorLayer, objectsLayer];
 
   // Enable collision for each tile layer
-  wallLayer.setCollisionByProperty({ collide: true });
-  waterLayer1.setCollisionByProperty({ collide: true });
-  waterLayer2.setCollisionByProperty({ collide: true });
-  doorLayer.setCollisionByProperty({ collide: true });
-  objectsLayer.setCollisionByProperty({ collide: true });
+  wallLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  waterLayer1.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  waterLayer2.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  doorLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  objectsLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
 
   this.followingSlimes = this.physics.add.group();
   this.movingSlime = this.physics.add.sprite(
@@ -455,6 +520,7 @@ function update(time, delta) {
   this.movingSlime.depth = this.movingSlime.y;
 	this.staticSlimes.children.entries.forEach(staticSlime => staticSlime.depth = this.movingSlime.depth);
 	this.wizards.children.entries.forEach(wizard => wizard.depth = this.movingSlime.depth);
+	this.knights.children.entries.forEach(knight => knight.depth = this.movingSlime.depth);
   // Layer the slimes so they are all over the proceding one
   this.followingSlimes.children.entries.forEach(function(slime, index) {
     slime.depth = this.movingSlime.depth - 0.1 * (index + 1);
