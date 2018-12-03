@@ -164,6 +164,7 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
     );
     
     slime.setTint(TINT_MAP[slimeColor]);
+    slime.color = slimeColor;
     scene.followingSlimes.add(slime);
 }
 
@@ -351,6 +352,7 @@ function create() {
   for (var i = 0; i < 1000; i++) {
     this.slimePos[i] = -50;
   }
+  this.movingSlime.color = 'green';
   this.movingSlime.setTint(TINT_MAP.green);
 
   addLayerCollision(this, this.movingSlime);
