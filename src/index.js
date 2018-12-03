@@ -393,6 +393,7 @@ function deRotateSlimes() {
 	const tempSlime = scene.movingSlime;
 
 	scene.movingSlime = followingSlimes.pop();
+	scene.movingSlime.combat.lastAttack = tempSlime.combat.lastAttack;
 	followingSlimes.unshift(tempSlime);
 
 	// Remove old collisions
@@ -416,6 +417,7 @@ function rotateSlimes() {
 	const tempSlime = scene.movingSlime;
 
 	scene.movingSlime = followingSlimes.shift();
+	scene.movingSlime.combat.lastAttack = tempSlime.combat.lastAttack;
 	followingSlimes.push(tempSlime);
 
 	// Remove old collisions
