@@ -1,171 +1,253 @@
-import 'phaser';
+import "phaser";
 
-class Game extends Phaser.Scene {
-  constructor() {
-    super({
-      key: 'Game',
+const SHOW_DEBUG = false;
+
+const TINT_MAP = {
+  red: 0xff0000,
+  green: 0x00ff00,
+  blue: 0x0000ff,
+  purple: 0xaa00ff,
+  yellow: 0xffff00
+};
+
+
+const config = {
+  type: Phaser.AUTO,
+  width: 320,
+  height: 240,
+  pixelArt: true,
+  scene: {
+    preload: preload,
+    create: create,
+    update: update
+  },
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { y: 0 } //Top down game, no gravity
+    }
+  }
+};
+
+const game = new Phaser.Game(config);
+let cursors;
+
+// Runs once, loads up assets like images and audio
+function preload() {
+  this.load.image("dungeon-tiles", "../assets/tilesets/dungeon_tiles.png");
+  this.load.tilemapTiledJSON("map", "../assets/tilemaps/level1.json");
+  this.load.spritesheet("slime", "assets/spritesheets/slime.png", {
+    frameWidth: 16,
+    frameHeight: 16,
+    endFrame: 15
+  });
+}
+
+function makeAnimations(scene) {
+  scene.anims.create({
+    key: "slime_walk_down",
+    frames: scene.anims.generateFrameNumbers("slime", {
+      start: 0,
+      end: 2,
+      first: 0
+    }),
+    frameRate: 10,
+    repeat: -1
+  });
+
+  scene.anims.create({
+    key: "slime_walk_left",
+    frames: scene.anims.generateFrameNumbers("slime", {
+      start: 3,
+      end: 5,
+      first: 3
+    }),
+    frameRate: 10,
+    repeat: -1
+  });
+
+  scene.anims.create({
+    key: "slime_walk_right",
+    frames: scene.anims.generateFrameNumbers("slime", {
+      start: 6,
+      end: 8,
+      first: 6
+    }),
+    frameRate: 10,
+    repeat: -1
+  });
+
+  scene.anims.create({
+    key: "slime_walk_up",
+    frames: scene.anims.generateFrameNumbers("slime", {
+      start: 9,
+      end: 11,
+      first: 9
+    }),
+    frameRate: 10,
+    repeat: -1
+  });
+}
+
+// Runs once, after all assets in preload are loaded
+function create() {
+  makeAnimations(this);
+  const map = this.make.tilemap({ key: "map" });
+  const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
+
+  // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
+  // Phaser's cache (i.e. the name you used in preload)
+  const tileset = map.addTilesetImage("dungeonv4", "dungeon-tiles");
+
+  // Parameters: layer name (or index) from Tiled, tileset, x, y
+  const groundLayer = map.createStaticLayer("ground", tileset, 0, 0);
+  const wallLayer = map.createStaticLayer("wall", tileset, 0, 0);
+  const waterLayer = map.createStaticLayer("water", tileset, 0, 0);
+  const doorLayer = map.createStaticLayer("door", tileset, 0, 0);
+  const objectsLayer = map.createStaticLayer("objects", tileset, 0, 0);
+
+  // Enable collision for each tile layer
+  wallLayer.setCollisionByProperty({ collide: true });
+  waterLayer.setCollisionByProperty({ collide: true });
+  doorLayer.setCollisionByProperty({ collide: true });
+  objectsLayer.setCollisionByProperty({ collide: true });
+
+  this.followingSlimes = this.physics.add.group();
+  this.movingSlime = this.physics.add.sprite(
+    spawnPoint.x,
+    spawnPoint.y,
+    "slime"
+  );
+  var tints = [TINT_MAP.red, TINT_MAP.blue, TINT_MAP.purple, TINT_MAP.yellow]
+  for (let i = 0; i < 4; i++) {
+    let slime = this.physics.add.sprite(
+      spawnPoint.x - 10 - i * 8,
+      spawnPoint.y,
+      "slime"
+    );
+    slime.setTint(tints[i]);
+    this.followingSlimes.add(slime);
+  }
+  this.slimePosIndexOffset = 0;
+  this.slimePos = [];
+  for (var i = 0; i < 1000; i++) {
+    this.slimePos[i] = 0;
+  }
+  this.movingSlime.setTint(TINT_MAP.green);
+
+  this.physics.add.collider(this.movingSlime, wallLayer);
+  this.physics.add.collider(this.movingSlime, waterLayer);
+  this.physics.add.collider(this.movingSlime, doorLayer);
+  this.physics.add.collider(this.movingSlime, objectsLayer);
+
+  if (SHOW_DEBUG) {
+    const debugGraphics = this.add.graphics().setAlpha(0.75);
+    doorLayer.renderDebug(debugGraphics, {
+      tileColor: null, // Color of non-colliding tiles
+      collidingTileColor: new Phaser.Display.Color(255, 255, 255, 255), // Color of colliding tiles
+      faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+    });
+    wallLayer.renderDebug(debugGraphics, {
+      tileColor: null, // Color of non-colliding tiles
+      collidingTileColor: new Phaser.Display.Color(255, 0, 0, 255), // Color of colliding tiles
+      faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+    });
+    waterLayer.renderDebug(debugGraphics, {
+      tileColor: null, // Color of non-colliding tiles
+      collidingTileColor: new Phaser.Display.Color(0, 255, 0, 255), // Color of colliding tiles
+      faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+    });
+    objectsLayer.renderDebug(debugGraphics, {
+      tileColor: null, // Color of non-colliding tiles
+      collidingTileColor: new Phaser.Display.Color(0, 0, 255, 255), // Color of colliding tiles
+      faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
   }
 
-	preload ()
-	{
-		// Load the map tileset image
-		this.load.image('spaceship', 'assets/spaceship.png');
-		// Parse the json file to generate an actual map
-		this.load.tilemapTiledJSON('map', 'assets/maps/example_spaceship.json');
-		
-		// Load slime spritesheet
-		this.load.spritesheet(
-		  'slime',
-		  'assets/slime.png',
-		  { frameWidth: 16, frameHeight: 16, endFrame: 15 },
-		);
-		
-		// Have to load the TiledPhysics plugin
-		this.load.scenePlugin({
-			key: 'TiledPhysics',
-			url: 'assets/plugins/TiledPhysics.js',
-		});
-	}
+  // Phaser supports multiple cameras, but you can access the default camera like this:
+  const camera = this.cameras.main;
 
-	create ()
-	{
-		const map = this.make.tilemap({ key: 'map' });
-		const tiles = map.addTilesetImage('spaceship', 'spaceship');
+  // Set up the arrows to control the camera
+  cursors = this.input.keyboard.createCursorKeys();
 
-		const zero = map.createStaticLayer('zero', tiles, 0, 0);
-		const one = map.createStaticLayer('one', tiles, 0, 0);
-		makeAnimations(this);
-		
-		this.movingSlime = this.add.sprite(80, 80);
-		this.movingSlime.play('slime_walk_down');
+  // Constrain the camera so that it isn't allowed to move outside the width/height of tilemap
+  camera.startFollow(this.movingSlime);
+  camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+}
 
-		const two = map.createDynamicLayer('two', tiles, 0, 0);
-		two.depth = two.height + 1;
-
-		// enable layers
-		const layerZero = this.physics.world.enable(zero);
-		const layerOne = this.physics.world.enable(one);
-		this.physics.world.enable(two);
-		
-		// enable bodies
-		const movingSlime = this.physics.world.enable(this.movingSlime);
-		this.movingSlime.body.setOffset(4, 8);
-
-		// enable colliders and modifiers
-		
-    this.physics.add.collider(movingSlime, [layerZero, layerOne]);
-    this.physics.add.force(movingSlime, [layerZero, layerOne]);
-	
-	this.physics.add.inertia(movingSlime, layerOne);
-
-		this.switch = false;
-
-		// camera
-		this.cameras.main.startFollow(this.movingSlime);
-		this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-		
-		this.keys = {
-		  up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP),
-		  left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT),
-		  right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT),
-		  down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN),
-		};
-	}
-
-  update(time, delta) {
-    // bodies
-    if (this.movingSlime.body.velocity.x ** 2 < 2) this.movingSlime.body.velocity.x = 0;
-    if (this.movingSlime.body.velocity.y ** 2 < 2) this.movingSlime.body.velocity.y = 0;
-
-    const speed = 50;
-	console.log(this.movingSlime.body.isOnTile);
-    if (this.movingSlime.body.isOnTile ||
-       (this.movingSlime.body.velocity.x === 0 && this.movingSlime.body.velocity.y === 0)) {
-      if (this.keys.down.isDown) {
-        this.movingSlime.body.setVelocity(0, speed);
-      } else if (this.keys.left.isDown) {
-        this.movingSlime.body.setVelocity(-speed, 0);
-      } else if (this.keys.right.isDown) {
-        this.movingSlime.body.setVelocity(speed, 0);
-      } else if (this.keys.up.isDown) {
-        this.movingSlime.body.setVelocity(0, -speed);
-      }
-    }
-
-    // animations
-    let animDir = '';
-    if (this.movingSlime.body.velocity.y > 0) {
-      animDir = 'down';
-    } else if (this.movingSlime.body.velocity.x < 0) {
-      animDir = 'left';
-    } else if (this.movingSlime.body.velocity.x > 0) {
-      animDir = 'right';
-    } else if (this.movingSlime.body.velocity.y < 0) {
-      animDir = 'up';
-    } else {
-      animDir = 'down';
-    }
-    let anim = 'slime_walk_' + animDir;
-    if (anim !== this.movingSlime.anims.currentAnim.key) {
-      this.movingSlime.play(anim);
-    }
-
-    // top-down layering
-    this.movingSlime.depth = this.movingSlime.y;
+// Runs once per frame for the duration of the scene
+function update(time, delta) {
+  this.slimePos[this.slimePosIndexOffset] = this.movingSlime.x;
+  this.slimePos[this.slimePosIndexOffset + 1] = this.movingSlime.y;
+  this.slimePosIndexOffset = this.slimePosIndexOffset - 2;
+  if (this.slimePosIndexOffset < 0) this.slimePosIndexOffset = this.slimePosIndexOffset + 1000;
+  for (var i = 0; i < this.followingSlimes.children.size; i++) {
+    var idx = this.slimePosIndexOffset + (i + 1) * 30;
+    idx = idx % 1000;
+    this.followingSlimes.children.entries[i].x = this.slimePos[idx];
+    this.followingSlimes.children.entries[i].y = this.slimePos[idx + 1];
   }
-}
+  // Apply the controls to the camera each update tick of the game
+  //controls.update(delta);
+  const speed = 50;
 
-/* TODO: pull this out to its own file */
-function makeAnimations(scene) {
- scene.anims.create({
-    key: 'slime_walk_down',
-    frames: scene.anims.generateFrameNumbers('slime', { start: 0, end: 2, first: 0 }),
-    frameRate: 10,
-    repeat: -1,
-  });
+  // Stop any previous movement from the last frame
+  this.movingSlime.body.setVelocity(0);
 
-  scene.anims.create({
-    key: 'slime_walk_left',
-    frames: scene.anims.generateFrameNumbers('slime', { start: 3, end: 5, first: 3 }),
-    frameRate: 10,
-    repeat: -1,
-  });
+  // Horizontal movement
+  if (cursors.left.isDown) {
+    this.movingSlime.body.setVelocityX(-speed);
+  } else if (cursors.right.isDown) {
+    this.movingSlime.body.setVelocityX(speed);
+  }
 
-  scene.anims.create({
-    key: 'slime_walk_right',
-    frames: scene.anims.generateFrameNumbers('slime', { start: 6, end: 8, first: 6 }),
-    frameRate: 10,
-    repeat: -1,
-  });
+  // Vertical movement
+  if (cursors.up.isDown) {
+    this.movingSlime.body.setVelocityY(-speed);
+  } else if (cursors.down.isDown) {
+    this.movingSlime.body.setVelocityY(speed);
+  }
 
-  scene.anims.create({
-    key: 'slime_walk_up',
-    frames: scene.anims.generateFrameNumbers('slime', { start: 9, end: 11, first: 9 }),
-    frameRate: 10,
-    repeat: -1,
-  });
-}
+  // Normalize and scale the velocity so that this.movingSlime can't move faster along a diagonal
+  this.movingSlime.body.velocity.normalize().scale(speed);
 
-const config = {
-  type: Phaser.WEBGL,
-  parent: 'content',
-  width: 320,
-  height: 240,
-  scaleMode: 0, // Phaser.ScaleManager.EXACT_FIT,
-  pixelArt: true,
-  zoom: 4,
-  antialias: false,
-  physics: {
-    tiled: {
-      tileHeight: 8,
-      tileWidth: 8,
-      debug: true,
+  // Update the animation last and give left/right animations precedence over up/down animations
+  if (cursors.left.isDown) {
+    this.movingSlime.anims.play("slime_walk_left", true);
+  } else if (cursors.right.isDown) {
+    this.movingSlime.anims.play("slime_walk_right", true);
+  } else if (cursors.up.isDown) {
+    this.movingSlime.anims.play("slime_walk_up", true);
+  } else if (cursors.down.isDown) {
+    this.movingSlime.anims.play("slime_walk_down", true);
+  } else {
+    this.movingSlime.anims.stop();
+  }
+  //top-down layering
+  this.movingSlime.depth = this.movingSlime.y;
+  // Layer the slimes so they are all over the proceding one
+  this.followingSlimes.children.entries.forEach(function(slime, index) {
+    slime.depth = this.movingSlime.depth - 0.1 * (index + 1);
+  }, this);
+
+  this.followingSlimes.children.entries.forEach(function(slime, index) {
+    //console.log(slime.anims);
+	let animDir = "";
+    if (this.movingSlime.body.velocity.y > 0) {
+      animDir = "down";
+    } else if (this.movingSlime.body.velocity.x < 0) {
+      animDir = "left";
+    } else if (this.movingSlime.body.velocity.x > 0) {
+      animDir = "right";
+    } else if (this.movingSlime.body.velocity.y < 0) {
+      animDir = "up";
+    } else {
+      animDir = "down";
     }
-  },
-  scene: [
-    Game,
-  ],
-};
-
-var game = new Phaser.Game(config);
+    let anim = "slime_walk_" + animDir;
+    if (!slime.anims.isPlaying || anim !== slime.anims.currentAnim.key) {
+		console.log(slime);
+      slime.play(anim);
+    }
+  }, this);
+}
