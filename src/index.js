@@ -545,6 +545,7 @@ function create() {
 
 	this.slimeCollideWaterLayer1 = true;
 	this.slimeCollideWaterLayer2 = true;
+	this.slimeCollideDoorLayer = true;
 
   
   // We're going to assume anything starting with "slime-..." is a spawn for a slime. determine color later
@@ -689,6 +690,18 @@ function create() {
     }
   }, this);
 
+  this.doorLayer.setTileIndexCallback([5191, 5192, 5193, 5194, 5099, 5100, 5101, 5102, 5007, 5008, 5009, 5010, 4915, 4916, 4917, 4918], (a, b) => {
+    if(isColorMatch(this.movingSlime, 'red')) {
+      if(cursors.space.isDown) {
+        if(this.slimeCollideDoorLayer) {
+          this.slimeCollideDoorLayer = false;
+          alert('You win!');
+        }
+
+      }
+    }
+  }, this);
+
 
 }
 
@@ -728,6 +741,8 @@ function updateStatuses(mainSlime, followingSlimes){
 function update(time, delta) {
   this.waterLayer1.setCollisionByProperty({ collide: true }, this.slimeCollideWaterLayer1);
   this.waterLayer2.setCollisionByProperty({ collide: true }, this.slimeCollideWaterLayer2);
+  this.doorLayer.setCollisionByProperty({ collide: true }, this.slimeCollideDoorLayer);
+
   window.gameObj = this;
   updateStatuses(this.movingSlime, this.followingSlimes.children.entries);
   // to add slimes
