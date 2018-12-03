@@ -131,6 +131,10 @@ function removeSlime(scene) {
 
   scene.movingSlime = followingSlimes[0];
 
+  // Remove old collisions
+	scene.physics.world.colliders.destroy();
+
+	// Add new collisions
 	addLayerCollision(scene, scene.movingSlime);
 
 	scene.cameras.main.startFollow(scene.movingSlime);
@@ -143,6 +147,10 @@ function removeSlime(scene) {
       followingSlimes[i] = followingSlimes[i + 1];
     }
   }
+}
+
+function rotateSlimes() {
+
 }
 
 function staticSlimeCollision(movingSlime, staticSlime) {
