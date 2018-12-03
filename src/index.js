@@ -80,7 +80,7 @@ const COMBAT_MAP = {
 	knight: {
 		red: {
 			current: 55,
-			max: 25,
+			max: 55,
 			attack: 10,
 			attackPeriod: 1000,
 			lastAttack: null
@@ -528,6 +528,8 @@ function create() {
 		tempKnight.combat = Object.assign({}, COMBAT_MAP.knight[knightColor]);
 		tempKnight.color = knightColor;
 
+		tempKnight.healthBar = this.add.graphics(knightSpawn.x, knightSpawn.y);
+
 		tempKnight.anims.play(`knight_${knightColor}_idle`, true);
 		this.knights.add(tempKnight);
 	});
@@ -834,7 +836,21 @@ function update(time, delta) {
 	});
 
 	this.knights.children.entries.forEach(knight => {
-		knight.depth = this.movingSlime.depth
+		knight.depth = this.movingSlime.depth;
+
+		const graphics = knight.healthBar;
+		graphics.clear();
+		const currentHealthRatio = knight.combat.current / knight.combat.max;
+		if (currentHealthRatio > 0.5) {
+			graphics.fillStyle(0x00ff00);
+		} else if (currentHealthRatio > 0.25) {
+			graphics.fillStyle(0xffff00);
+		} else {
+			graphics.fillStyle(0xff0000);
+		}
+
+		graphics.fillRect(knight.x - 11, knight.y - 17, 20 * currentHealthRatio, 3);
+		graphics.setDepth(knight.depth + 1);
 	});
 
   // Layer the slimes so they are all over the proceding one
