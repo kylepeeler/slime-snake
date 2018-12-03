@@ -338,6 +338,7 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
     
     slime.setTint(TINT_MAP[slimeColor]);
     slime.color = slimeColor;
+    slime.combat = COMBAT_MAP.slime[slimeColor];
     scene.followingSlimes.add(slime);
 }
 
@@ -553,6 +554,7 @@ function create() {
     console.log(KEY_PARTS[1], TINT_MAP[KEY_PARTS[1]]);
     tempSlime.setTint(TINT_MAP[KEY_PARTS[1]]);
     tempSlime.color = KEY_PARTS[1];
+    tempSlime.combat = Object.assign({}, COMBAT_MAP.slime[KEY_PARTS[1]]);
     tempSlime.anims.play("slime_walk_down", true);
     this.staticSlimes.add(tempSlime);
   });	  
@@ -692,10 +694,10 @@ function updateStatuses(mainSlime, followingSlimes){
 		}else if (mainSlimeHealthPercent <= 33){
 			progressBarColor = "danger"
 		}
-		html += "<div class='sprite-info main'>" + "<img class='slime-img' src='../assets/ui/slime-" + mainSlime.color + ".png' />" + "<div class='progress'><div class='progress-bar bg-" + progressBarColor + "' role='progressbar' style='width: " + mainSlimeHealthPercent + "%'></div></div><div class='progress-bar-health'>" + +mainSlime.curHealth + "/" + SLIME_BASE_HEALTH + "</div>" + "</div>";
+		html += "<div class='sprite-info main'>" + "<img class='slime-img' src='../assets/ui/slime-" + mainSlime.color + ".png' />" + "<div class='progress'><div class='progress-bar bg-" + progressBarColor + "' role='progressbar' style='width: " + mainSlimeHealthPercent + "%'></div></div><div class='progress-bar-health'>" + +mainSlime.combat.current + "/" + mainSlime.combat.max + "</div>" + "</div>";
 	}
 	followingSlimes.forEach((slime) =>{
-		if (slime.color && slime.curHealth){
+		if (slime.color && slime.combat.current){
 			let slimeHealthPercent = parseInt((slime.combat.current / slime.combat.max) * 100)
 			let progressBarColor = "success";
 			if (slimeHealthPercent <= 33) {
@@ -703,7 +705,7 @@ function updateStatuses(mainSlime, followingSlimes){
 			}else if (slimeHealthPercent <= 66) {
 				progressBarColor = "warning"
 			}
-			html += "<div class='sprite-info following'>" + "<img class='slime-img' src='../assets/ui/slime-" + slime.color + ".png' />" + "<div class='progress'><div class='progress-bar bg-" + progressBarColor + "' role='progressbar' style='width: " + slimeHealthPercent + "%'></div></div><div class='progress-bar-health'>" + slime.curHealth + " / " + SLIME_BASE_HEALTH + "</div>" + "</div>";
+			html += "<div class='sprite-info following'>" + "<img class='slime-img' src='../assets/ui/slime-" + slime.color + ".png' />" + "<div class='progress'><div class='progress-bar bg-" + progressBarColor + "' role='progressbar' style='width: " + slimeHealthPercent + "%'></div></div><div class='progress-bar-health'>" + slime.combat.current + " / " + slime.combat.max + "</div>" + "</div>";
 		}
 	});
 	html += "</div>"
