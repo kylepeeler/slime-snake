@@ -146,13 +146,15 @@ function create() {
   // Parameters: layer name (or index) from Tiled, tileset, x, y
   const groundLayer = map.createStaticLayer("ground", tileset, 0, 0);
   const wallLayer = map.createStaticLayer("wall", tileset, 0, 0);
-  const waterLayer = map.createStaticLayer("water", tileset, 0, 0);
+  const water1Layer = map.createStaticLayer("water1", tileset, 0, 0);
+  const water2Layer = map.createStaticLayer("water2", tileset, 0, 0);
   const doorLayer = map.createStaticLayer("door", tileset, 0, 0);
   const objectsLayer = map.createStaticLayer("objects", tileset, 0, 0);
 
   // Enable collision for each tile layer
   wallLayer.setCollisionByProperty({ collide: true });
-  waterLayer.setCollisionByProperty({ collide: true });
+  water1Layer.setCollisionByProperty({ collide: true });
+  water2Layer.setCollisionByProperty({ collide: true });
   doorLayer.setCollisionByProperty({ collide: true });
   objectsLayer.setCollisionByProperty({ collide: true });
 
@@ -181,7 +183,8 @@ function create() {
   this.movingSlime.setTint(TINT_MAP.green);
 
   this.physics.add.collider(this.movingSlime, wallLayer);
-  this.physics.add.collider(this.movingSlime, waterLayer);
+  this.physics.add.collider(this.movingSlime, water1Layer);
+  this.physics.add.collider(this.movingSlime, water2Layer);
   this.physics.add.collider(this.movingSlime, doorLayer);
   this.physics.add.collider(this.movingSlime, objectsLayer);
 
@@ -197,7 +200,12 @@ function create() {
       collidingTileColor: new Phaser.Display.Color(255, 0, 0, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    waterLayer.renderDebug(debugGraphics, {
+    water1Layer.renderDebug(debugGraphics, {
+      tileColor: null, // Color of non-colliding tiles
+      collidingTileColor: new Phaser.Display.Color(0, 255, 0, 255), // Color of colliding tiles
+      faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+    });
+    water2Layer.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(0, 255, 0, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
