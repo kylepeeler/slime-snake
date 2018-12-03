@@ -523,14 +523,12 @@ function create() {
 		tempWiz.body.moves = false;
 
 		tempWiz.color = wizardColor;
-		tempWiz.combat = Object.assign({}, COMBAT_MAP.wizard[wizardColor]);
+		tempWiz.combat = Object.assign({}, COMBAT_MAP.wizard[wizardColor]);tempWiz.anims.play(`wizard_${wizardColor}_idle`, true);
+    this.wizards.add(tempWiz);
 
-		tempWiz.anims.play(`wizard_${wizardColor}_idle`, true);
-		this.wizards.add(tempWiz);
+    });this.slimeCollideWaterLayer1 = true;
+    this.slimeCollideWaterLayer2 = true;
 
-		this.slimeCollideWaterLayer1 = true;
-		this.slimeCollideWaterLayer2 = true;
-	});
   
   // We're going to assume anything starting with "slime-..." is a spawn for a slime. determine color later
   const staticSlimes = map.filterObjects("points", obj => obj.name.startsWith("slime-"));
@@ -656,7 +654,6 @@ function create() {
           removeSlime(this);
           this.slimeCollideWaterLayer1 = false;
         }
-
       }
     }
   }, this);
