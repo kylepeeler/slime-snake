@@ -177,6 +177,7 @@ function create() {
   for (var i = 0; i < 1000; i++) {
     this.slimePos[i] = -50;
   }
+  this.movingSlime.color = 'green';
   this.movingSlime.setTint(TINT_MAP.green);
 
   this.physics.add.collider(this.movingSlime, wallLayer);
