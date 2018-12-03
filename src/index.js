@@ -153,6 +153,7 @@ function addLayerCollision(scene, body) {
   scene.collisionLayers.forEach(layer => {
 	  scene.physics.add.collider(body, layer);
   });
+	scene.physics.add.collider(body, scene.wizards);
 }
 
 function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
@@ -273,6 +274,9 @@ function create() {
 			wizardColor
 		);
 
+		tempWiz.body.immovable = true;
+		tempWiz.body.moves = false;
+
 		tempWiz.anims.play(`wizard_${KEY_PARTS[1]}_idle`, true);
 		this.wizards.add(tempWiz);
 	});
@@ -346,7 +350,7 @@ function create() {
 
   addLayerCollision(this, this.movingSlime);
 
-  if (SHOW_DEBUG) {
+	if (SHOW_DEBUG) {
     const debugGraphics = this.add.graphics().setAlpha(0.75);
     doorLayer.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
