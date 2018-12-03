@@ -113,6 +113,7 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
       y,
       "slime"
     );
+    console.log('GOT ' + slimeColor);
     
     slime.setTint(TINT_MAP[slimeColor]);
     scene.followingSlimes.add(slime);
@@ -198,7 +199,6 @@ function rotateSlimes() {
 function staticSlimeCollision(movingSlime, staticSlime) {
   staticSlime.disableBody(true, true);
 	addSlime(movingSlime.scene, staticSlime.color);
-	removeSlime(movingSlime.scene);
 	return false;
 }
 
@@ -238,14 +238,16 @@ function create() {
   // Parameters: layer name (or index) from Tiled, tileset, x, y
   const groundLayer = map.createStaticLayer("ground", tileset, 0, 0);
   const wallLayer = map.createStaticLayer("wall", tileset, 0, 0);
-  const waterLayer = map.createStaticLayer("water", tileset, 0, 0);
+  const waterLayer1 = map.createStaticLayer("water1", tileset, 0, 0);
+  const waterLayer2 = map.createStaticLayer("water2", tileset, 0, 0);
   const doorLayer = map.createStaticLayer("door", tileset, 0, 0);
   const objectsLayer = map.createStaticLayer("objects", tileset, 0, 0);
-  this.collisionLayers = [wallLayer, waterLayer, doorLayer, objectsLayer];
+  this.collisionLayers = [wallLayer, waterLayer1, waterLayer2, doorLayer, objectsLayer];
 
   // Enable collision for each tile layer
   wallLayer.setCollisionByProperty({ collide: true });
-  waterLayer.setCollisionByProperty({ collide: true });
+  waterLayer1.setCollisionByProperty({ collide: true });
+  waterLayer2.setCollisionByProperty({ collide: true });
   doorLayer.setCollisionByProperty({ collide: true });
   objectsLayer.setCollisionByProperty({ collide: true });
 
@@ -255,16 +257,16 @@ function create() {
     spawnPoint.y,
     "slime"
   );
-  var tints = [TINT_MAP.red, TINT_MAP.blue, TINT_MAP.purple, TINT_MAP.yellow]
-  for (let i = 0; i < 4; i++) {
-    let slime = this.physics.add.sprite(
-      spawnPoint.x - 10 - i * 8,
-      spawnPoint.y,
-      "slime"
-    );
-    slime.setTint(tints[i]);
-    this.followingSlimes.add(slime);
-  }
+  // var tints = [TINT_MAP.red, TINT_MAP.blue, TINT_MAP.purple, TINT_MAP.yellow]
+  // for (let i = 0; i < 4; i++) {
+  //   let slime = this.physics.add.sprite(
+  //     spawnPoint.x - 10 - i * 8,
+  //     spawnPoint.y,
+  //     "slime"
+  //   );
+  //   slime.setTint(tints[i]);
+  //   this.followingSlimes.add(slime);
+  // }
   
   this.slimePosIndexOffset = 0;
   this.slimePos = [];
@@ -287,9 +289,14 @@ function create() {
       collidingTileColor: new Phaser.Display.Color(255, 0, 0, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    waterLayer.renderDebug(debugGraphics, {
+    waterLayer1.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(0, 255, 0, 255), // Color of colliding tiles
+      faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+    });
+    waterLayer2.renderDebug(debugGraphics, {
+      tileColor: null, // Color of non-colliding tiles
+      collidingTileColor: new Phaser.Display.Color(0, 255, 255, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
     objectsLayer.renderDebug(debugGraphics, {
@@ -329,8 +336,7 @@ function update(time, delta) {
     this.followingSlimes.children.entries[i].y = this.slimePos[idx + 1];
   }
   // Apply the controls to the camera each update tick of the game
-  //controls.update(delta);
-  const speed = 200;
+  const speed = 50;
 
   // Stop any previous movement from the last frame
   this.movingSlime.body.setVelocity(0);
@@ -374,7 +380,6 @@ function update(time, delta) {
   }, this);
 
   this.followingSlimes.children.entries.forEach(function(slime, index) {
-    //console.log(slime.anims);
 	let animDir = "";
     if (this.movingSlime.body.velocity.y > 0) {
       animDir = "down";
