@@ -96,7 +96,6 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
       y,
       "slime"
     );
-    console.log('GOT ' + slimeColor);
     
     slime.setTint(TINT_MAP[slimeColor]);
     scene.followingSlimes.add(slime);
@@ -162,16 +161,16 @@ function create() {
     spawnPoint.y,
     "slime"
   );
-  var tints = [TINT_MAP.red, TINT_MAP.blue, TINT_MAP.purple, TINT_MAP.yellow]
-  for (let i = 0; i < 4; i++) {
-    let slime = this.physics.add.sprite(
-      spawnPoint.x - 10 - i * 8,
-      spawnPoint.y,
-      "slime"
-    );
-    slime.setTint(tints[i]);
-    this.followingSlimes.add(slime);
-  }
+  // var tints = [TINT_MAP.red, TINT_MAP.blue, TINT_MAP.purple, TINT_MAP.yellow]
+  // for (let i = 0; i < 4; i++) {
+  //   let slime = this.physics.add.sprite(
+  //     spawnPoint.x - 10 - i * 8,
+  //     spawnPoint.y,
+  //     "slime"
+  //   );
+  //   slime.setTint(tints[i]);
+  //   this.followingSlimes.add(slime);
+  // }
   
   this.slimePosIndexOffset = 0;
   this.slimePos = [];
@@ -236,8 +235,7 @@ function update(time, delta) {
     this.followingSlimes.children.entries[i].y = this.slimePos[idx + 1];
   }
   // Apply the controls to the camera each update tick of the game
-  //controls.update(delta);
-  const speed = 200;
+  const speed = 50;
 
   // Stop any previous movement from the last frame
   this.movingSlime.body.setVelocity(0);
@@ -281,7 +279,6 @@ function update(time, delta) {
   }, this);
 
   this.followingSlimes.children.entries.forEach(function(slime, index) {
-    //console.log(slime.anims);
 	let animDir = "";
     if (this.movingSlime.body.velocity.y > 0) {
       animDir = "down";
