@@ -12,12 +12,15 @@ const TINT_MAP = {
   yellow: 0xffff00
 };
 
+const SLIME_BASE_HEALTH = 50;
+
 
 const config = {
   type: Phaser.AUTO,
   width: 320,
   height: 240,
   pixelArt: true,
+  parent: 'game',
   canvasStyle: 'zoom: 200%',
   scene: {
     preload: preload,
@@ -200,6 +203,7 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
     
     slime.setTint(TINT_MAP[slimeColor]);
     slime.color = slimeColor;
+    slime.curHealth = SLIME_BASE_HEALTH;
     scene.followingSlimes.add(slime);
 }
 
@@ -421,8 +425,9 @@ function create() {
   for (var i = 0; i < 1000; i++) {
     this.slimePos[i] = -50;
   }
-  this.movingSlime.color = 'blue';
-  this.movingSlime.setTint(TINT_MAP.blue);
+  this.movingSlime.color = 'green';
+  this.movingSlime.curHealth = SLIME_BASE_HEALTH;
+  this.movingSlime.setTint(TINT_MAP[this.movingSlime.color]);
 
   addLayerCollision(this, this.movingSlime);
 
@@ -482,16 +487,31 @@ function isColorMatch(movingSlime, color){
 }
 
 function updateStatuses(mainSlime, followingSlimes){
-  var html = "";
-  if (mainSlime && mainSlime.color){
-    html += "<div class='sprite-info main'>" + mainSlime.color + "</div>"
+  var html = "<div id='status-text'>Slime Status:</div><div id='statuses'>";
+  if (mainSlime && mainSlime.color && mainSlime.curHealth){
+    let mainSlimeHealthPercent = parseInt((mainSlime.curHealth / SLIME_BASE_HEALTH) * 100);
+    let progressBarColor = "success";
+    if (mainSlimeHealthPercent <= 66){
+      progressBarColor = "warning"
+    }else if (mainSlimeHealthPercent <= 33){
+      progressBarColor = "danger"
+    }
+    html += "<div class='sprite-info main'>" + "<img class='slime-img' src='../assets/ui/slime-" + mainSlime.color + ".png' />" + "<div class='progress'><div class='progress-bar bg-" + progressBarColor + "' role='progressbar' style='width: " + mainSlimeHealthPercent + "%'></div></div><div class='progress-bar-health'>" + +mainSlime.curHealth + "/" + SLIME_BASE_HEALTH + "</div>" + "</div>";
   }
   followingSlimes.forEach((slime) =>{
-    if (slime.color){
-      html += "<div class='sprite-info following'>" + slime.color + "</div>";
+    if (slime.color && slime.curHealth){
+      let slimeHealthPercent = parseInt((slime.curHealth / SLIME_BASE_HEALTH) * 100)
+      let progressBarColor = "success";
+      if (slimeHealthPercent <= 33) {
+        progressBarColor = "danger";
+      }else if (slimeHealthPercent <= 66) {
+        progressBarColor = "warning"
+      }
+      html += "<div class='sprite-info following'>" + "<img class='slime-img' src='../assets/ui/slime-" + slime.color + ".png' />" + "<div class='progress'><div class='progress-bar bg-" + progressBarColor + "' role='progressbar' style='width: " + slimeHealthPercent + "%'></div></div><div class='progress-bar-health'>" + slime.curHealth + " / " + SLIME_BASE_HEALTH + "</div>" + "</div>";
     }
   });
-  document.getElementById('status').innerHTML = html;
+  html += "</div>"
+  document.getElementById("status").innerHTML = html;
 }
 
 // Runs once per frame for the duration of the scene
@@ -512,7 +532,7 @@ function update(time, delta) {
     this.followingSlimes.children.entries[i].y = this.slimePos[idx + 1];
   }
   // Apply the controls to the camera each update tick of the game
-  const speed = 100;
+  const speed = 50;
 
   // Stop any previous movement from the last frame
   this.movingSlime.body.setVelocity(0);
