@@ -100,6 +100,7 @@ const config = {
   width: 320,
   height: 240,
   pixelArt: true,
+  parent: 'game',
   canvasStyle: 'zoom: 200%',
   scene: {
     preload: preload,
@@ -337,7 +338,6 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
     
     slime.setTint(TINT_MAP[slimeColor]);
     slime.color = slimeColor;
-    slime.combat = Object.assign({}, COMBAT_MAP.slime[slimeColor]);
     scene.followingSlimes.add(slime);
 }
 
@@ -682,11 +682,40 @@ function isColorMatch(movingSlime, color){
   return(movingSlime.color == color);
 }
 
+function updateStatuses(mainSlime, followingSlimes){
+	var html = "<div id='status-text'>Slime Status:</div><div id='statuses'>";
+	if (mainSlime && mainSlime.color && mainSlime.combat.current){
+		let mainSlimeHealthPercent = parseInt((mainSlime.combat.current / mainSlime.combat.max) * 100);
+		let progressBarColor = "success";
+		if (mainSlimeHealthPercent <= 66){
+			progressBarColor = "warning"
+		}else if (mainSlimeHealthPercent <= 33){
+			progressBarColor = "danger"
+		}
+		html += "<div class='sprite-info main'>" + "<img class='slime-img' src='../assets/ui/slime-" + mainSlime.color + ".png' />" + "<div class='progress'><div class='progress-bar bg-" + progressBarColor + "' role='progressbar' style='width: " + mainSlimeHealthPercent + "%'></div></div><div class='progress-bar-health'>" + +mainSlime.curHealth + "/" + SLIME_BASE_HEALTH + "</div>" + "</div>";
+	}
+	followingSlimes.forEach((slime) =>{
+		if (slime.color && slime.curHealth){
+			let slimeHealthPercent = parseInt((slime.combat.current / slime.combat.max) * 100)
+			let progressBarColor = "success";
+			if (slimeHealthPercent <= 33) {
+				progressBarColor = "danger";
+			}else if (slimeHealthPercent <= 66) {
+				progressBarColor = "warning"
+			}
+			html += "<div class='sprite-info following'>" + "<img class='slime-img' src='../assets/ui/slime-" + slime.color + ".png' />" + "<div class='progress'><div class='progress-bar bg-" + progressBarColor + "' role='progressbar' style='width: " + slimeHealthPercent + "%'></div></div><div class='progress-bar-health'>" + slime.curHealth + " / " + SLIME_BASE_HEALTH + "</div>" + "</div>";
+		}
+	});
+	html += "</div>"
+	document.getElementById("status").innerHTML = html;
+}
+
 // Runs once per frame for the duration of the scene
 function update(time, delta) {
   this.waterLayer1.setCollisionByProperty({ collide: true }, this.slimeCollideWaterLayer1);
   this.waterLayer2.setCollisionByProperty({ collide: true }, this.slimeCollideWaterLayer2);
   window.gameObj = this;
+  updateStatuses(this.movingSlime, this.followingSlimes.children.entries);
   // to add slimes
   this.physics.collide(this.movingSlime, this.staticSlimes, staticSlimeCollision, staticSlimeCollision, this);
   this.slimePos[this.slimePosIndexOffset] = this.movingSlime.x;
