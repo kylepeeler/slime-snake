@@ -4,6 +4,8 @@ const SHOW_DEBUG = false;
 
 const IGNORE_MAP_COLLISION = false;
 
+const SLIME_START_COLOR = 'green';
+
 const TINT_MAP = {
   red: 0xff0000,
   green: 0x00ff00,
@@ -330,26 +332,27 @@ function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
       y,
       "slime"
     );
-
+    
     slime.setTint(TINT_MAP[slimeColor]);
     slime.color = slimeColor;
     scene.followingSlimes.add(slime);
 }
 
 function removeSlime(scene) {
-	const followingSlimes = scene.followingSlimes.children.entries;
-	const numSlimes = followingSlimes.length;
-	if (numSlimes === 0) {
-		console.error("We have no slimes left!");
-		return;
-	}
+  const followingSlimes = scene.followingSlimes.children.entries;
 
-	scene.movingSlime.body.setVelocity(0);
-	scene.movingSlime.play("slime_dead");
+  const numSlimes = followingSlimes.length;
+  if (numSlimes === 0) {
+    console.error("We have no slimes left!");
+    return;
+  }
 
-	scene.movingSlime = followingSlimes[0];
+  scene.movingSlime.body.setVelocity(0);
+  scene.movingSlime.play("slime_dead");
 
-	// Remove old collisions
+  scene.movingSlime = followingSlimes[0];
+
+  // Remove old collisions
 	scene.physics.world.colliders.destroy();
 
 	// Add new collisions
@@ -357,14 +360,14 @@ function removeSlime(scene) {
 
 	scene.cameras.main.startFollow(scene.movingSlime);
 
-	for (let i = 0; i < numSlimes; i++) {
-		if (i + 1 === numSlimes) {
-			// Remove last slime
-			followingSlimes.splice(-1, 1);
-		} else {
-			followingSlimes[i] = followingSlimes[i + 1];
-		}
-	}
+  for (let i = 0; i < numSlimes; i++) {
+    if (i + 1 === numSlimes) {
+      // Remove last slime
+      followingSlimes.splice(-1, 1);
+    } else {
+      followingSlimes[i] = followingSlimes[i + 1];
+    }
+  }
 }
 
 function deRotateSlimes() {
@@ -414,7 +417,7 @@ function rotateSlimes() {
 }
 
 function staticSlimeCollision(movingSlime, staticSlime) {
-	staticSlime.disableBody(true, true);
+  staticSlime.disableBody(true, true);
 	addSlime(movingSlime.scene, staticSlime.color);
 	return false;
 }
@@ -464,8 +467,10 @@ function knightColliderCallback(movingSlime, knight) {
 
 // Runs once, after all assets in preload are loaded
 function create() {
-	makeAnimations(this);
-	const map = this.make.tilemap({key: "map"});
+
+  makeAnimations(this);
+
+  const map = this.make.tilemap({ key: "map" });
 	const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
 
 	const knightSpawns = map.filterObjects("points", obj => obj.name.startsWith("knight-"));
@@ -522,51 +527,47 @@ function create() {
 
 		tempWiz.anims.play(`wizard_${wizardColor}_idle`, true);
 		this.wizards.add(tempWiz);
-	});
 
-	// We're going to assume anything starting with "slime-..." is a spawn for a slime. determine color later
-	const staticSlimes = map.filterObjects("points", obj => obj.name.startsWith("slime-"));
-	this.staticSlimes = this.physics.add.group();
-
-	staticSlimes.forEach(staticSlime => {
-		// Split the name so we can get the color. name should look like: "slime-COLOR-ID" or "slime-COLOR" if unique
-		const KEY_PARTS = staticSlime.name.split("-");
-		if (KEY_PARTS.length < 2) {
-			console.log("Error creating slime from spawn: " + staticSlime.name);
-			console.log(staticSlime);
-		}
-		let tempSlime = this.physics.add.sprite(
-			staticSlime.x,
-			staticSlime.y,
-			"slime"
-		);
-		console.log(KEY_PARTS[1], TINT_MAP[KEY_PARTS[1]]);
-		tempSlime.setTint(TINT_MAP[KEY_PARTS[1]]);
-		tempSlime.color = KEY_PARTS[1];
-		tempSlime.combat = Object.assign({}, COMBAT_MAP.slime[KEY_PARTS[1]]);
-		tempSlime.anims.play("slime_walk_down", true);
-		this.staticSlimes.add(tempSlime);
+		this.slimeCollideWaterLayer1 = true;
+		this.slimeCollideWaterLayer2 = true;
 	});
+  
+  // We're going to assume anything starting with "slime-..." is a spawn for a slime. determine color later
+  const staticSlimes = map.filterObjects("points", obj => obj.name.startsWith("slime-"));
+  this.staticSlimes = this.physics.add.group();
+
+  staticSlimes.forEach(staticSlime => {
+	// Split the name so we can get the color. name should look like: "slime-COLOR-ID" or "slime-COLOR" if unique
+	const KEY_PARTS = staticSlime.name.split("-");
+	if (KEY_PARTS.length < 2) {
+		console.log("Error creating slime from spawn: " + staticSlime.name);
+		console.log(staticSlime);
+	}
+	let tempSlime = this.physics.add.sprite(
+      staticSlime.x,
+      staticSlime.y,
+      "slime"
+    );
+    console.log(KEY_PARTS[1], TINT_MAP[KEY_PARTS[1]]);
+    tempSlime.setTint(TINT_MAP[KEY_PARTS[1]]);
+    tempSlime.color = KEY_PARTS[1];
+    tempSlime.anims.play("slime_walk_down", true);
+    this.staticSlimes.add(tempSlime);
+  });	  
 
   // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
   // Phaser's cache (i.e. the name you used in preload)
   const tileset = map.addTilesetImage("dungeonv4", "dungeon-tiles");
 
   // Parameters: layer name (or index) from Tiled, tileset, x, y
-  const groundLayer = map.createStaticLayer("ground", tileset, 0, 0);
-  const wallLayer = map.createStaticLayer("wall", tileset, 0, 0);
-  const waterLayer1 = map.createStaticLayer("water1", tileset, 0, 0);
-  const waterLayer2 = map.createStaticLayer("water2", tileset, 0, 0);
-  const doorLayer = map.createStaticLayer("door", tileset, 0, 0);
-  const objectsLayer = map.createStaticLayer("objects", tileset, 0, 0);
-  this.collisionLayers = [wallLayer, waterLayer1, waterLayer2, doorLayer, objectsLayer];
+  this.groundLayer = map.createStaticLayer("ground", tileset, 0, 0);
+  this.wallLayer = map.createStaticLayer("wall", tileset, 0, 0);
+  this.waterLayer1 = map.createDynamicLayer("water1", tileset, 0, 0);
+  this.waterLayer2 = map.createStaticLayer("water2", tileset, 0, 0);
+  this.doorLayer = map.createStaticLayer("door", tileset, 0, 0);
+  this.objectsLayer = map.createStaticLayer("objects", tileset, 0, 0);
 
-  // Enable collision for each tile layer
-  wallLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
-  waterLayer1.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
-  waterLayer2.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
-  doorLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
-  objectsLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  this.collisionLayers = [this.wallLayer, this.waterLayer1, this.waterLayer2, this.doorLayer, this.objectsLayer];
 
   this.followingSlimes = this.physics.add.group();
   this.movingSlime = this.physics.add.sprite(
@@ -574,6 +575,14 @@ function create() {
     spawnPoint.y,
     "slime"
   );
+
+  // Enable collision for each tile layer
+  this.wallLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  this.waterLayer1.setCollisionByProperty({ collide: true }, isColorMatch(this.movingSlime, 'blue'));
+  this.waterLayer2.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  this.doorLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  this.objectsLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+
   // var tints = [TINT_MAP.red, TINT_MAP.blue, TINT_MAP.purple, TINT_MAP.yellow]
   // for (let i = 0; i < 4; i++) {
   //   let slime = this.physics.add.sprite(
@@ -590,35 +599,35 @@ function create() {
   for (var i = 0; i < 1000; i++) {
     this.slimePos[i] = -50;
   }
-  this.movingSlime.color = 'green';
+  this.movingSlime.color = SLIME_START_COLOR;
+  this.movingSlime.setTint(TINT_MAP[SLIME_START_COLOR]);
 	this.movingSlime.combat = Object.assign({}, COMBAT_MAP.slime.green);
-  this.movingSlime.setTint(TINT_MAP.green);
 
   addLayerCollision(this, this.movingSlime);
 
 	if (SHOW_DEBUG) {
     const debugGraphics = this.add.graphics().setAlpha(0.75);
-    doorLayer.renderDebug(debugGraphics, {
+    this.doorLayer.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(255, 255, 255, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    wallLayer.renderDebug(debugGraphics, {
+    this.wallLayer.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(255, 0, 0, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    waterLayer1.renderDebug(debugGraphics, {
+    this.waterLayer1.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(0, 255, 0, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    waterLayer2.renderDebug(debugGraphics, {
+    this.waterLayer2.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(0, 255, 255, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    objectsLayer.renderDebug(debugGraphics, {
+    this.objectsLayer.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(0, 0, 255, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
@@ -632,15 +641,50 @@ function create() {
   cursors = this.input.keyboard.createCursorKeys();
 
 	this.input.keyboard.on('keydown_A', deRotateSlimes, this);
-	this.input.keyboard.on('keydown_D', rotateSlimes, this);
+  this.input.keyboard.on('keydown_D', rotateSlimes, this);
 
   // Constrain the camera so that it isn't allowed to move outside the width/height of tilemap
   camera.startFollow(this.movingSlime);
   camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+
+
+  this.waterLayer1.setTileIndexCallback([4490, 4491, 4492, 4493, 4582, 4583, 4584, 4585, 4674, 4675, 4676, 4677, 4766, 4767, 4768, 4769], (a, b) => {
+    if(isColorMatch(this.movingSlime, 'blue')) {
+      if(cursors.space.isDown) {
+        if(this.slimeCollideWaterLayer1) {
+          this.movingSlime.y = this.movingSlime.y + 15;
+          removeSlime(this);
+          this.slimeCollideWaterLayer1 = false;
+        }
+
+      }
+    }
+  }, this);
+
+  this.waterLayer2.setTileIndexCallback([3754, 3755, 3756, 3757, 3846, 3847, 3848, 3849, 3938, 3939, 3940, 3941, 4030, 4031, 4032, 4033, 4122, 4123, 4124, 4125, 4214, 4215, 4216, 4217, 4306, 4307, 4308, 4309], (a, b) => {
+    if(isColorMatch(this.movingSlime, 'blue')) {
+      if(cursors.space.isDown) {
+        if(this.slimeCollideWaterLayer2) {
+          this.movingSlime.x = this.movingSlime.x + 15;
+          removeSlime(this);
+          this.slimeCollideWaterLayer2 = false;
+        }
+
+      }
+    }
+  }, this);
+
+
+}
+
+function isColorMatch(movingSlime, color){
+  return(movingSlime.color == color);
 }
 
 // Runs once per frame for the duration of the scene
 function update(time, delta) {
+  this.waterLayer1.setCollisionByProperty({ collide: true }, this.slimeCollideWaterLayer1);
+  this.waterLayer2.setCollisionByProperty({ collide: true }, this.slimeCollideWaterLayer2);
   window.gameObj = this;
   // to add slimes
   this.physics.collide(this.movingSlime, this.staticSlimes, staticSlimeCollision, staticSlimeCollision, this);
@@ -689,7 +733,7 @@ function update(time, delta) {
   } else {
     this.movingSlime.anims.play("slime_walk_down", true);
   }
-
+  
   //top-down layering
   this.movingSlime.depth = this.movingSlime.y;
 	this.staticSlimes.children.entries.forEach(staticSlime => staticSlime.depth = this.movingSlime.depth);

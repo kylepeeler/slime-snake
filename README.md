@@ -21,8 +21,8 @@ Run next commands in your terminal:
 ### Slimes
 | Color | Ability |
 |-|-|
-| Red | Bridge across water |
-| Blue | Open doors (1 door to win level)|
+| Red | Open doors (1 door to win level) |
+| Blue | Bridge across water |
 | Green | Can attack wizards |
 | Purple | Can attack knights |
 
