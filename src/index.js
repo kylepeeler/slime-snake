@@ -16,6 +16,7 @@ const config = {
   width: 320,
   height: 240,
   pixelArt: true,
+  canvasStyle: 'zoom: 200%',
   scene: {
     preload: preload,
     create: create,
@@ -177,6 +178,7 @@ function create() {
 
 // Runs once per frame for the duration of the scene
 function update(time, delta) {
+  window.gameObj = this;
   this.slimePos[this.slimePosIndexOffset] = this.movingSlime.x;
   this.slimePos[this.slimePosIndexOffset + 1] = this.movingSlime.y;
   this.slimePosIndexOffset = this.slimePosIndexOffset - 2;
