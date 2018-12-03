@@ -90,11 +90,50 @@ function makeAnimations(scene) {
   });
 }
 
+function addSlime(scene, slimeColor = TINT_MAP.yellow, x = -25, y = -25) {
+	let slime = scene.physics.add.sprite(
+      x,
+      y,
+      "slime"
+    );
+    slime.setTint(-slimeColor);
+    scene.followingSlimes.add(slime);
+}
+
+function staticSlimeCollision(movingSlime, staticSlime) {
+	staticSlime.disableBody(true, true);
+	addSlime(movingSlime.scene, staticSlime.tintBottomLeft);
+	return false;
+}
+
 // Runs once, after all assets in preload are loaded
 function create() {
   makeAnimations(this);
   const map = this.make.tilemap({ key: "map" });
   const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
+  
+  // We're going to assume anything starting with "slime-..." is a spawn for a slime. determine color later
+  const staticSlimes = map.filterObjects("points", obj => obj.name.startsWith("slime-"));
+  this.staticSlimes = this.physics.add.group();
+  
+  console.log("spawnPoint");
+  console.log(spawnPoint);
+  staticSlimes.forEach(staticSlime => {
+	// Split the name so we can get the color. name should look like: "slime-COLOR-ID" or "slime-COLOR" if unique
+	const KEY_PARTS = staticSlime.name.split("-");
+	if (KEY_PARTS.length < 2) {
+		console.log("Error creating slime from spawn: " + staticSlime.name);
+		console.log(staticSlime);
+	}
+	let tempSlime = this.physics.add.sprite(
+      staticSlime.x,
+      staticSlime.y,
+      "slime"
+    );
+    tempSlime.setTint(TINT_MAP[KEY_PARTS[1]]);
+    tempSlime.anims.play("slime_walk_down", true);
+    this.staticSlimes.add(tempSlime);
+  });	  
 
   // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
   // Phaser's cache (i.e. the name you used in preload)
@@ -129,10 +168,11 @@ function create() {
     slime.setTint(tints[i]);
     this.followingSlimes.add(slime);
   }
+  
   this.slimePosIndexOffset = 0;
   this.slimePos = [];
   for (var i = 0; i < 1000; i++) {
-    this.slimePos[i] = 0;
+    this.slimePos[i] = -50;
   }
   this.movingSlime.setTint(TINT_MAP.green);
 
@@ -179,6 +219,8 @@ function create() {
 // Runs once per frame for the duration of the scene
 function update(time, delta) {
   window.gameObj = this;
+  // to add slimes
+  this.physics.collide(this.movingSlime, this.staticSlimes, staticSlimeCollision, staticSlimeCollision, this);
   this.slimePos[this.slimePosIndexOffset] = this.movingSlime.x;
   this.slimePos[this.slimePosIndexOffset + 1] = this.movingSlime.y;
   this.slimePosIndexOffset = this.slimePosIndexOffset - 2;
@@ -223,10 +265,12 @@ function update(time, delta) {
   } else if (cursors.down.isDown) {
     this.movingSlime.anims.play("slime_walk_down", true);
   } else {
-    this.movingSlime.anims.stop();
+    this.movingSlime.anims.play("slime_walk_down", true);
   }
+  
   //top-down layering
   this.movingSlime.depth = this.movingSlime.y;
+  this.staticSlimes.children.entries.forEach(staticSlime => staticSlime.depth = this.movingSlime.depth);
   // Layer the slimes so they are all over the proceding one
   this.followingSlimes.children.entries.forEach(function(slime, index) {
     slime.depth = this.movingSlime.depth - 0.1 * (index + 1);
@@ -248,7 +292,6 @@ function update(time, delta) {
     }
     let anim = "slime_walk_" + animDir;
     if (!slime.anims.isPlaying || anim !== slime.anims.currentAnim.key) {
-		console.log(slime);
       slime.play(anim);
     }
   }, this);
