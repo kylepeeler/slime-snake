@@ -90,19 +90,21 @@ function makeAnimations(scene) {
   });
 }
 
-function addSlime(scene, slimeColor = TINT_MAP.yellow, x = -25, y = -25) {
+function addSlime(scene, slimeColor = 'yellow', x = -25, y = -25) {
 	let slime = scene.physics.add.sprite(
       x,
       y,
       "slime"
     );
-    slime.setTint(-slimeColor);
+    console.log('GOT ' + slimeColor);
+    
+    slime.setTint(TINT_MAP[slimeColor]);
     scene.followingSlimes.add(slime);
 }
 
 function staticSlimeCollision(movingSlime, staticSlime) {
-	staticSlime.disableBody(true, true);
-	addSlime(movingSlime.scene, staticSlime.tintBottomLeft);
+  staticSlime.disableBody(true, true);
+	addSlime(movingSlime.scene, staticSlime.color);
 	return false;
 }
 
@@ -130,7 +132,9 @@ function create() {
       staticSlime.y,
       "slime"
     );
+    console.log(KEY_PARTS[1], TINT_MAP[KEY_PARTS[1]]);
     tempSlime.setTint(TINT_MAP[KEY_PARTS[1]]);
+    tempSlime.color = KEY_PARTS[1];
     tempSlime.anims.play("slime_walk_down", true);
     this.staticSlimes.add(tempSlime);
   });	  
@@ -233,7 +237,7 @@ function update(time, delta) {
   }
   // Apply the controls to the camera each update tick of the game
   //controls.update(delta);
-  const speed = 50;
+  const speed = 200;
 
   // Stop any previous movement from the last frame
   this.movingSlime.body.setVelocity(0);
