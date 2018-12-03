@@ -64,7 +64,7 @@ const COMBAT_MAP = {
 		},
 		green: {
 			current: 55,
-			max: 25,
+			max: 55,
 			attack: 30,
 			attackPeriod: 1000,
 			lastAttack: null
@@ -800,6 +800,7 @@ function update(time, delta) {
 		wizard.depth = this.movingSlime.depth;
 
 		const graphics = wizard.healthBar;
+		graphics.clear();
 		const currentHealthRatio = wizard.combat.current / wizard.combat.max;
 		if (currentHealthRatio > 0.5) {
 			graphics.fillStyle(0x00ff00);
@@ -809,7 +810,7 @@ function update(time, delta) {
 			graphics.fillStyle(0xff0000);
 		}
 
-		graphics.fillRect(wizard.x - 11, wizard.y - 17, 10 * currentHealthRatio, 3);
+		graphics.fillRect(wizard.x - 11, wizard.y - 17, 20 * currentHealthRatio, 3);
 		graphics.setDepth(wizard.depth + 1);
 	});
 
