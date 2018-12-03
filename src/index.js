@@ -360,6 +360,7 @@ function removeSlime(scene) {
   scene.movingSlime.depth -= 20;
   scene.movingSlime.play("slime_dead");
 
+  followingSlimes[0].combat.lastAttack = scene.movingSlime.combat.lastAttack;
   scene.movingSlime = followingSlimes[0];
 
   // Remove old collisions
@@ -434,19 +435,36 @@ function staticSlimeCollision(movingSlime, staticSlime) {
 
 function determineCombat(sceneRef, obj1, obj1DeathCallback, obj1AttackAnim, obj2, obj2DeathCallback, obj2AttackAnim) {
 	const currentTime = Date.now();
-	if (!obj1.combat.lastAttack || obj1.combat.lastAttack + obj1.combat.attackPeriod < currentTime) {
+	if (cursors.space.isDown && (!obj1.combat.lastAttack || obj1.combat.lastAttack + obj1.combat.attackPeriod < currentTime)) {
 		if (obj1AttackAnim) {
 			obj1.anims.play(obj1AttackAnim);
 		}
-		obj2.combat.current = Math.max(0, obj2.combat.current - obj1.combat.attack);
+
+		if (SHOW_DEBUG) {
+			console.log(obj1.texture.key + " attacks " + obj2.texture.key + " for " + obj1.combat.attack + " damage!");
+			console.log("Old HP: " + obj2.combat.current);
+			obj2.combat.current = Math.max(0, obj2.combat.current - obj1.combat.attack);
+			console.log("New HP: " + obj2.combat.current);
+		} else {
+			obj2.combat.current = Math.max(0, obj2.combat.current - obj1.combat.attack);
+		}
+
 		obj1.combat.lastAttack = currentTime;
 	}
-	if (!obj2.combat.lastAttack || obj2.combat.lastAttack + obj2.combat.attackPeriod < currentTime) {
+	if (cursors.space.isDown && (!obj2.combat.lastAttack || obj2.combat.lastAttack + obj2.combat.attackPeriod < currentTime)) {
 		if (obj2AttackAnim) {
 			obj2.anims.stop();
 			obj2.anims.play(obj2AttackAnim);
 		}
-		obj1.combat.current = Math.max(0, obj1.combat.current - obj2.combat.attack);
+
+		if (SHOW_DEBUG) {
+			console.log(obj2.texture.key + " attacks " + obj1.texture.key + " for " + obj2.combat.attack + " damage!");
+			console.log("Old HP: " + obj1.combat.current);
+			obj1.combat.current = Math.max(0, obj1.combat.current - obj2.combat.attack);
+			console.log("New HP: " + obj1.combat.current);
+		} else {
+			obj1.combat.current = Math.max(0, obj1.combat.current - obj2.combat.attack);
+		}
 		obj2.combat.lastAttack = currentTime;
 	}
 
@@ -536,7 +554,8 @@ function create() {
 		tempWiz.body.moves = false;
 
 		tempWiz.color = wizardColor;
-		tempWiz.combat = Object.assign({}, COMBAT_MAP.wizard[wizardColor]);tempWiz.anims.play(`wizard_${wizardColor}_idle`, true);
+		tempWiz.combat = Object.assign({}, COMBAT_MAP.wizard[wizardColor]);
+		tempWiz.anims.play(`wizard_${wizardColor}_idle`, true);
 
 		tempWiz.healthBar = this.add.graphics(wizardSpawn.x, wizardSpawn.y);
 
