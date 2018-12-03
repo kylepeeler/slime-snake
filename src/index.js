@@ -37,11 +37,26 @@ let cursors;
 function preload() {
   this.load.image("dungeon-tiles", "../assets/tilesets/dungeon_tiles.png");
   this.load.tilemapTiledJSON("map", "../assets/tilemaps/level1.json");
-  this.load.spritesheet("slime", "assets/spritesheets/slime.png", {
-    frameWidth: 16,
-    frameHeight: 16,
-    endFrame: 15
-  });
+	this.load.spritesheet("slime", "assets/spritesheets/slime.png", {
+		frameWidth: 16,
+		frameHeight: 16,
+		endFrame: 15
+	});
+	this.load.spritesheet("wizard-blue", "assets/spritesheets/wizard-blue.png", {
+		frameWidth: 21,
+		frameHeight: 24,
+		endFrame: 3
+	});
+	this.load.spritesheet("wizard-red", "assets/spritesheets/wizard-red.png", {
+		frameWidth: 27,
+		frameHeight: 23,
+		endFrame: 3
+	});
+	this.load.spritesheet("wizard-green", "assets/spritesheets/wizard-green.png", {
+		frameWidth: 21,
+		frameHeight: 24,
+		endFrame: 3
+	});
 }
 
 function makeAnimations(scene) {
@@ -95,6 +110,39 @@ function makeAnimations(scene) {
 			start: 12,
 			end: 12,
 			first: 12
+		}),
+		frameRate: 10,
+		repeat: -1
+	});
+
+	scene.anims.create({
+		key: "wizard_blue_idle",
+		frames: scene.anims.generateFrameNumbers("wizard-blue", {
+			start: 0,
+			end: 0,
+			first: 0
+		}),
+		frameRate: 10,
+		repeat: -1
+	});
+
+	scene.anims.create({
+		key: "wizard_red_idle",
+		frames: scene.anims.generateFrameNumbers("wizard-red", {
+			start: 0,
+			end: 0,
+			first: 0
+		}),
+		frameRate: 10,
+		repeat: -1
+	});
+
+	scene.anims.create({
+		key: "wizard_green_idle",
+		frames: scene.anims.generateFrameNumbers("wizard-green", {
+			start: 0,
+			end: 0,
+			first: 0
 		}),
 		frameRate: 10,
 		repeat: -1
@@ -206,7 +254,29 @@ function staticSlimeCollision(movingSlime, staticSlime) {
 function create() {
   makeAnimations(this);
   const map = this.make.tilemap({ key: "map" });
-  const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
+	const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
+
+	const wizardSpawns = map.filterObjects("points", obj => obj.name.startsWith("wizard-"));
+	this.wizards = this.physics.add.group();
+
+	wizardSpawns.forEach(wizardSpawn => {
+		// Split the name so we can get the color. name should look like: "wizard-COLOR-ID" or "slime-COLOR" if unique
+		const KEY_PARTS = wizardSpawn.name.split("-");
+		if (KEY_PARTS.length < 2) {
+			console.log("Error creating wizard from spawn: " + wizardSpawn.name);
+			console.log(wizardSpawn);
+		}
+
+		const wizardColor = 'wizard-' + KEY_PARTS[1];
+		let tempWiz = this.physics.add.sprite(
+			wizardSpawn.x,
+			wizardSpawn.y,
+			wizardColor
+		);
+
+		tempWiz.anims.play(`wizard_${KEY_PARTS[1]}_idle`, true);
+		this.wizards.add(tempWiz);
+	});
   
   // We're going to assume anything starting with "slime-..." is a spawn for a slime. determine color later
   const staticSlimes = map.filterObjects("points", obj => obj.name.startsWith("slime-"));
@@ -373,7 +443,8 @@ function update(time, delta) {
   
   //top-down layering
   this.movingSlime.depth = this.movingSlime.y;
-  this.staticSlimes.children.entries.forEach(staticSlime => staticSlime.depth = this.movingSlime.depth);
+	this.staticSlimes.children.entries.forEach(staticSlime => staticSlime.depth = this.movingSlime.depth);
+	this.wizards.children.entries.forEach(wizard => wizard.depth = this.movingSlime.depth);
   // Layer the slimes so they are all over the proceding one
   this.followingSlimes.children.entries.forEach(function(slime, index) {
     slime.depth = this.movingSlime.depth - 0.1 * (index + 1);
