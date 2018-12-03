@@ -154,7 +154,7 @@ function deRotateSlimes() {
 	const scene = this;
 	const followingSlimes = scene.followingSlimes.children.entries;
 	const numSlimes = followingSlimes.length;
-	if (numSlimes < 2) {
+	if (numSlimes < 1) {
 		console.error("Not enough slimes to rotate!");
 		return;
 	}
@@ -177,7 +177,7 @@ function rotateSlimes() {
 	const scene = this;
 	const followingSlimes = scene.followingSlimes.children.entries;
 	const numSlimes = followingSlimes.length;
-	if (numSlimes < 2) {
+	if (numSlimes < 1) {
 		console.error("Not enough slimes to rotate!");
 		return;
 	}
