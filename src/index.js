@@ -298,7 +298,9 @@ function knightColliderCallback(movingSlime, knight) {
 
 // Runs once, after all assets in preload are loaded
 function create() {
+
   makeAnimations(this);
+  
   const map = this.make.tilemap({ key: "map" });
 	const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
 
@@ -380,20 +382,14 @@ function create() {
   const tileset = map.addTilesetImage("dungeonv4", "dungeon-tiles");
 
   // Parameters: layer name (or index) from Tiled, tileset, x, y
-  const groundLayer = map.createStaticLayer("ground", tileset, 0, 0);
-  const wallLayer = map.createStaticLayer("wall", tileset, 0, 0);
-  const waterLayer1 = map.createStaticLayer("water1", tileset, 0, 0);
-  const waterLayer2 = map.createStaticLayer("water2", tileset, 0, 0);
-  const doorLayer = map.createStaticLayer("door", tileset, 0, 0);
-  const objectsLayer = map.createStaticLayer("objects", tileset, 0, 0);
-  this.collisionLayers = [wallLayer, waterLayer1, waterLayer2, doorLayer, objectsLayer];
+  this.groundLayer = map.createStaticLayer("ground", tileset, 0, 0);
+  this.wallLayer = map.createStaticLayer("wall", tileset, 0, 0);
+  this.waterLayer1 = map.createDynamicLayer("water1", tileset, 0, 0);
+  this.waterLayer2 = map.createStaticLayer("water2", tileset, 0, 0);
+  this.doorLayer = map.createStaticLayer("door", tileset, 0, 0);
+  this.objectsLayer = map.createStaticLayer("objects", tileset, 0, 0);
 
-  // Enable collision for each tile layer
-  wallLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
-  waterLayer1.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
-  waterLayer2.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
-  doorLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
-  objectsLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  this.collisionLayers = [this.wallLayer, this.waterLayer1, this.waterLayer2, this.doorLayer, this.objectsLayer];
 
   this.followingSlimes = this.physics.add.group();
   this.movingSlime = this.physics.add.sprite(
@@ -401,6 +397,14 @@ function create() {
     spawnPoint.y,
     "slime"
   );
+
+  // Enable collision for each tile layer
+  this.wallLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  this.waterLayer1.setCollisionByProperty({ collide: true }, isColorMatch(this.movingSlime, 'blue'));
+  this.waterLayer2.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  this.doorLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+  this.objectsLayer.setCollisionByProperty({ collide: true && !IGNORE_MAP_COLLISION });
+
   // var tints = [TINT_MAP.red, TINT_MAP.blue, TINT_MAP.purple, TINT_MAP.yellow]
   // for (let i = 0; i < 4; i++) {
   //   let slime = this.physics.add.sprite(
@@ -411,40 +415,40 @@ function create() {
   //   slime.setTint(tints[i]);
   //   this.followingSlimes.add(slime);
   // }
-  
+
   this.slimePosIndexOffset = 0;
   this.slimePos = [];
   for (var i = 0; i < 1000; i++) {
     this.slimePos[i] = -50;
   }
-  this.movingSlime.color = 'green';
-  this.movingSlime.setTint(TINT_MAP.green);
+  this.movingSlime.color = 'blue';
+  this.movingSlime.setTint(TINT_MAP.blue);
 
   addLayerCollision(this, this.movingSlime);
 
 	if (SHOW_DEBUG) {
     const debugGraphics = this.add.graphics().setAlpha(0.75);
-    doorLayer.renderDebug(debugGraphics, {
+    this.doorLayer.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(255, 255, 255, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    wallLayer.renderDebug(debugGraphics, {
+    this.wallLayer.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(255, 0, 0, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    waterLayer1.renderDebug(debugGraphics, {
+    this.waterLayer1.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(0, 255, 0, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    waterLayer2.renderDebug(debugGraphics, {
+    this.waterLayer2.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(0, 255, 255, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
     });
-    objectsLayer.renderDebug(debugGraphics, {
+    this.objectsLayer.renderDebug(debugGraphics, {
       tileColor: null, // Color of non-colliding tiles
       collidingTileColor: new Phaser.Display.Color(0, 0, 255, 255), // Color of colliding tiles
       faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
@@ -463,11 +467,38 @@ function create() {
   // Constrain the camera so that it isn't allowed to move outside the width/height of tilemap
   camera.startFollow(this.movingSlime);
   camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+
+
+  this.waterLayer1.setTileIndexCallback([4490, 4491, 4492, 4493, 4582, 4583, 4584, 4585, 4674, 4675, 4676, 4677, 4766, 4767, 4768, 4769], (a, b, c, d) => {
+    console.log('hit some watery indexes there mate!', a, b, c, d)
+    return false;
+  }, this);
+
+
+}
+
+function isColorMatch(movingSlime, color){
+  return movingSlime.color == color;
+}
+
+function updateStatuses(mainSlime, followingSlimes){
+  var html = "";
+  if (mainSlime && mainSlime.color){
+    html += "<div class='sprite-info main'>" + mainSlime.color + "</div>"
+  }
+  followingSlimes.forEach((slime) =>{
+    if (slime.color){
+      html += "<div class='sprite-info following'>" + slime.color + "</div>";
+    }
+  });
+  document.getElementById('status').innerHTML = html;
 }
 
 // Runs once per frame for the duration of the scene
 function update(time, delta) {
+  this.waterLayer1.setCollisionByProperty({ collide: true }, !isColorMatch(this.movingSlime, 'blue'));
   window.gameObj = this;
+  updateStatuses(this.movingSlime, this.followingSlimes.children.entries);
   // to add slimes
   this.physics.collide(this.movingSlime, this.staticSlimes, staticSlimeCollision, staticSlimeCollision, this);
   this.slimePos[this.slimePosIndexOffset] = this.movingSlime.x;
@@ -481,7 +512,7 @@ function update(time, delta) {
     this.followingSlimes.children.entries[i].y = this.slimePos[idx + 1];
   }
   // Apply the controls to the camera each update tick of the game
-  const speed = 50;
+  const speed = 100;
 
   // Stop any previous movement from the last frame
   this.movingSlime.body.setVelocity(0);
