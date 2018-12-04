@@ -67,12 +67,34 @@ how they are born and die, and what causes the scene to change states (if it doe
 | 9 | wizard-blue |
 ---
 --
-## Documentation Directory (Google Docs Link)
-[View in Google Docs](https://drive.google.com/open?id=1QAKDRge5tcbDovE5R6uUZ5oQze7akGbx)
+# Software Engineering Plan
+##Team Member Responsibilities
+* Kyle Peeler - Software Architect, UI Design/Implementation, Team Coordinator, Slime AI
+* Trent Spice - Map Planning, Map Generation, Collision Management, SFX, Animations
+* Tim Hickam - Integration, Combat, Slime Mechanics, Interactions
 
-## Software Engineering Plan
-TODO: Describe the structure of the team, each person's primary responsibilities, a proposed (and actual) time line with milestones identified, and any other documentation needed for process management.
+Team members were given tasks determined by consensus after finishing prior tasks. Considerations to past work was 
+given when determining who would work on new tasks e.g. Trent was primarily given map-based tasks due to his 
+familiarity with the map design tooling and implementation.
 
-## State Transition Diagram
-TODO: State Transition Diagram - Please show a simple state transition diagram describing the various states in your game and how the transitions between these states occur.
+Timeline
+0. Plan mechanics for game
+1. Implement working example using Phaser
+1. ~~Implement TiledPhysics plugin example~~
+2. Scrap TiledPhysics plugin dependency
+3. Design Slime Follower mechanic
+4. Add ability to pick up slimes
+5. Procured sprite art for enemies and map
+6. Generate basic map structure
+7. Add ability to rotate slime positions without changing order
+8. Removing slimes (no intended way for this to happen yet)
+9. Spawn enemies based on map data
+10. Implement combat
+11. Add map interactions (bridge and final door)
+12. Add UI for user to monitor slimes
+13. Create health bars for enemies
+14. Make beginning and end states for game based on win/lose/start
+
+# State Transition Diagram
+![Game Screenshot](FiniteStateDiagram.png)
 
