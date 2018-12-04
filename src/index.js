@@ -210,25 +210,35 @@ function determineCombat(
       obj1.anims.play(obj1AttackAnim);
     }
 
+    // Check for modified damage
+		let damage = obj1.combat.attack;
+		if (obj2.texture.key.split("-")[0] === "wizard" && obj1.color === "green") {
+			// Green slimes deal double damage against wizards
+			damage = damage * 2;
+		} else if (obj2.texture.key.split("-")[0] === "knight" && obj1.color === "purple") {
+			// Purple slimes deal double damage against knights
+			damage = damage * 2;
+		}
+
     if (SHOW_DEBUG) {
       console.log(
         obj1.texture.key +
           " attacks " +
           obj2.texture.key +
           " for " +
-          obj1.combat.attack +
+          damage +
           " damage!"
       );
       console.log("Old HP: " + obj2.combat.current);
       obj2.combat.current = Math.max(
         0,
-        obj2.combat.current - obj1.combat.attack
+        obj2.combat.current - damage
       );
       console.log("New HP: " + obj2.combat.current);
     } else {
       obj2.combat.current = Math.max(
         0,
-        obj2.combat.current - obj1.combat.attack
+        obj2.combat.current - damage
       );
     }
 
@@ -244,25 +254,27 @@ function determineCombat(
       obj2.anims.play(obj2AttackAnim);
     }
 
+		let damage = obj2.combat.attack;
     if (SHOW_DEBUG) {
       console.log(
         obj2.texture.key +
           " attacks " +
           obj1.texture.key +
           " for " +
-          obj2.combat.attack +
+          damage +
           " damage!"
       );
       console.log("Old HP: " + obj1.combat.current);
+      let damage = obj2.combat.attack;
       obj1.combat.current = Math.max(
         0,
-        obj1.combat.current - obj2.combat.attack
+        obj1.combat.current - damage
       );
       console.log("New HP: " + obj1.combat.current);
     } else {
       obj1.combat.current = Math.max(
         0,
-        obj1.combat.current - obj2.combat.attack
+        obj1.combat.current - damage
       );
     }
     obj2.combat.lastAttack = currentTime;
