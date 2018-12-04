@@ -705,7 +705,7 @@ function create() {
   this.input.keyboard.on("keydown_ENTER", function(event) {
       document.getElementById("startScreen").style.display = "none";
       gameStarted = true;
-      var backgroundMusic = this.sound.add('background_music');
+      var backgroundMusic = this.sound.add('background_music', {volume: 0.3});
       backgroundMusic.loop = true;
       backgroundMusic.play();
   }.bind(this));
