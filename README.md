@@ -66,6 +66,10 @@ how they are born and die, and what causes the scene to change states (if it doe
 | 8 | wizard-green |
 | 9 | wizard-blue |
 ---
+--
+## Documentation Directory (Google Docs Link)
+[View in Google Docs](https://drive.google.com/open?id=1QAKDRge5tcbDovE5R6uUZ5oQze7akGbx)
+
 ## Software Engineering Plan
 TODO: Describe the structure of the team, each person's primary responsibilities, a proposed (and actual) time line with milestones identified, and any other documentation needed for process management.
 
