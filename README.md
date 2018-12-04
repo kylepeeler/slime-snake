@@ -4,7 +4,12 @@
 ## Screenshot:
 ![Game Screenshot](assets/documentation/screenshot.png)
 
-Slime snake is a dungeon crawler adventure game based on this concept from 
+This game is a puzzle dungeon crawler. The user must traverse a dungeon collecting allied slimes while navigating the 
+dangers found within. These dangers range from treacherous streams (slimes hate water) to arcane wizards and barbarous
+knights. The ultimate goal in each level is to reach the door at the end of the stage and break it down using the red
+slime. However, the red slime isn't always out in the open. You will have to rely on all the slimes you can find to
+navigate the bleak dungeon successfully.
+
 ### Requirements
 
 You need [Node.js](https://nodejs.org) to install and run scripts.
