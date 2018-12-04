@@ -331,7 +331,6 @@ function wizardColliderCallback(movingSlime, wizard) {
     undefined,
     `wizard_${wizard.color}_attack`,
   );
-  console.log(obj);
   if(obj['obj1']) {
     s_slimeAttack.play();
   }
