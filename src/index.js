@@ -46,6 +46,14 @@ let cursors;
 // Runs once, loads up assets like images and audio
 function preload() {
   this.load.audio("background_music", ["../assets/audio/slimemusic.mp3", "../assets/audio/slimemusic.wav", "../assets/audio/slimemusic.ogg"]);
+  this.load.audio("door_open", "../assets/audio/door-open.wav");
+  this.load.audio("s_knight_red", "../assets/audio/knight-red.wav");
+  this.load.audio("s_slime_attack", "../assets/audio/slime-attack.wav");
+  this.load.audio("slime_pickup", "../assets/audio/slime-pickup.wav");
+  this.load.audio("slime_cycle", "../assets/audio/slime-cycle.wav");
+  this.load.audio("water_drop", "../assets/audio/water-drop.wav");
+  this.load.audio("s_wizard_green", "../assets/audio/wizard-green.wav");
+  this.load.audio("s_wizard_red", "../assets/audio/wizard-red.wav");
   this.load.image("dungeon-tiles", "../assets/tilesets/dungeon_tiles.png");
   this.load.tilemapTiledJSON("map", "../assets/tilemaps/level1.json");
   this.load.spritesheet("slime", "assets/spritesheets/slime.png", {
@@ -148,6 +156,7 @@ function deRotateSlimes() {
     return;
   }
 
+  s_slimeCycle.play();
   const tempSlime = scene.movingSlime;
 
   scene.movingSlime = followingSlimes.pop();
@@ -159,6 +168,8 @@ function deRotateSlimes() {
 
   // Add new collisions
   addLayerCollision(scene, scene.movingSlime);
+
+
 
   scene.cameras.main.startFollow(scene.movingSlime);
 }
@@ -172,6 +183,7 @@ function rotateSlimes() {
     return;
   }
 
+  s_slimeCycle.play();
   const tempSlime = scene.movingSlime;
 
   scene.movingSlime = followingSlimes.shift();
@@ -190,6 +202,9 @@ function rotateSlimes() {
 function staticSlimeCollision(movingSlime, staticSlime) {
   staticSlime.disableBody(true, true);
   addSlime(movingSlime.scene, staticSlime.color);
+  var slimePickup = this.sound.add('slime_pickup');
+  slimePickup.loop = false;
+  slimePickup.play();
   return false;
 }
 
@@ -200,14 +215,16 @@ function determineCombat(
   obj1AttackAnim,
   obj2,
   obj2DeathCallback,
-  obj2AttackAnim
+  obj2AttackAnim,
 ) {
+  var ret = [];
   const currentTime = Date.now();
   if (
     cursors.space.isDown &&
     (!obj1.combat.lastAttack ||
       obj1.combat.lastAttack + obj1.combat.attackPeriod < currentTime)
   ) {
+    ret['obj1'] = true;
     if (obj1AttackAnim) {
       obj1.anims.play(obj1AttackAnim);
     }
@@ -251,6 +268,7 @@ function determineCombat(
     (!obj2.combat.lastAttack ||
       obj2.combat.lastAttack + obj2.combat.attackPeriod < currentTime)
   ) {
+    ret['obj2'] = true;
     if (obj2AttackAnim) {
       obj2.anims.stop();
       obj2.anims.play(obj2AttackAnim);
@@ -300,34 +318,73 @@ function determineCombat(
       obj2.disableBody(true, true);
     }
   }
+  return ret;
 }
 
 function wizardColliderCallback(movingSlime, wizard) {
-  determineCombat(
+  let obj = determineCombat(
     movingSlime.scene,
     movingSlime,
     removeSlime,
     undefined,
     wizard,
     undefined,
-    `wizard_${wizard.color}_attack`
+    `wizard_${wizard.color}_attack`,
   );
+  console.log(obj);
+  if(obj['obj1']) {
+    s_slimeAttack.play();
+  }
+  if(obj['obj2']) {
+    if(wizard.color === 'red') {
+      setTimeout(function(){ 
+        s_wizardRedAttack.play(); 
+      }, 50);
+      
+    }
+    if(wizard.color === 'green') {
+      setTimeout(function(){ 
+        s_wizardGreenAttack.play();
+      }, 50);
+      
+    }
+  }
 }
 
 function knightColliderCallback(movingSlime, knight) {
-  determineCombat(
+  let obj = determineCombat(
     movingSlime.scene,
     movingSlime,
     removeSlime,
     undefined,
     knight,
     undefined,
-    `knight_${knight.color}_attack`
+    `knight_${knight.color}_attack`,
   );
+  if(obj['obj1']) {
+    s_slimeAttack.play();
+  }
+  if(obj['obj2']) {
+    setTimeout(function(){ 
+      s_knightRedAttack.play();
+    }, 50);
+  }
 }
+//global sound variables
+var s_slimeAttack, s_wizardRedAttack, s_wizardGreenAttack, s_knightRedAttack, s_slimeCycle;
 
 // Runs once, after all assets in preload are loaded
 function create() {
+  s_slimeCycle = this.sound.add('slime_cycle');
+  s_slimeCycle.loop = false;
+  s_slimeAttack = this.sound.add('s_slime_attack');
+  s_slimeAttack.loop = false;
+  s_wizardRedAttack = this.sound.add('s_wizard_red');
+  s_wizardRedAttack.loop = false;
+  s_wizardGreenAttack = this.sound.add('s_wizard_green');
+  s_wizardGreenAttack.loop = false;
+  s_knightRedAttack = this.sound.add('s_knight_red');
+  s_knightRedAttack.loop = false;
 
   makeAnimations(this);
   const map = this.make.tilemap({ key: "map" });
@@ -548,6 +605,9 @@ function create() {
       if (isColorMatch(this.movingSlime, "blue")) {
         if (cursors.space.isDown) {
           if (this.slimeCollideWaterLayer1) {
+            var waterDrop = this.sound.add('water_drop');
+            waterDrop.loop = false;
+            waterDrop.play();
             this.movingSlime.y = this.movingSlime.y + 15;
             removeSlime(this);
             this.slimeCollideWaterLayer1 = false;
@@ -593,6 +653,9 @@ function create() {
       if (isColorMatch(this.movingSlime, "blue")) {
         if (cursors.space.isDown) {
           if (this.slimeCollideWaterLayer2) {
+            var waterDrop = this.sound.add('water_drop');
+            waterDrop.loop = false;
+            waterDrop.play();
             this.movingSlime.x = this.movingSlime.x + 15;
             removeSlime(this);
             this.slimeCollideWaterLayer2 = false;
@@ -626,6 +689,9 @@ function create() {
       if (isColorMatch(this.movingSlime, "red")) {
         if (cursors.space.isDown) {
           if (this.slimeCollideDoorLayer) {
+            var doorOpen = this.sound.add('door_open');
+            doorOpen.loop = false;
+            doorOpen.play();
             this.slimeCollideDoorLayer = false;
             document.getElementById("gameWinScreen").style.display = "block";
           }
