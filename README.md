@@ -4,7 +4,11 @@
 ## Screenshot:
 ![Game Screenshot](assets/documentation/screenshot.png)
 
-TODO: Brief game description
+This game is a puzzle dungeon crawler. The user must traverse a dungeon collecting allied slimes while navigating the 
+dangers found within. These dangers range from treacherous streams (slimes hate water) to arcane wizards and barbarous
+knights. The ultimate goal in each level is to reach the door at the end of the stage and break it down using the red
+slime. However, the red slime isn't always out in the open. You will have to rely on all the slimes you can find to
+navigate the bleak dungeon successfully.
 
 ### Requirements
 
@@ -66,7 +70,7 @@ how they are born and die, and what causes the scene to change states (if it doe
 | 8 | wizard-green |
 | 9 | wizard-blue |
 ---
---
+
 # Software Engineering Plan
 ##Team Member Responsibilities
 * Kyle Peeler - Software Architect, UI Design/Implementation, Team Coordinator, Slime AI
@@ -96,5 +100,5 @@ Timeline
 14. Make beginning and end states for game based on win/lose/start
 
 # State Transition Diagram
-![Game Screenshot](FiniteStateDiagram.png)
+![Game Screenshot](assets/documentation/FiniteStateDiagram.png)
 
