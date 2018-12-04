@@ -315,10 +315,6 @@ function knightColliderCallback(movingSlime, knight) {
 // Runs once, after all assets in preload are loaded
 function create() {
 
-  var backgroundMusic = this.sound.add('background_music');
-  backgroundMusic.loop = true;
-  backgroundMusic.play();
-
   makeAnimations(this);
   const map = this.make.tilemap({ key: "map" });
   const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
@@ -617,7 +613,7 @@ function create() {
         if (cursors.space.isDown) {
           if (this.slimeCollideDoorLayer) {
             this.slimeCollideDoorLayer = false;
-            alert("You win!");
+            document.getElementById("gameWinScreen").style.display = "block";
           }
         }
       }
@@ -629,6 +625,9 @@ function create() {
   this.input.keyboard.on("keydown_ENTER", function(event) {
       document.getElementById("startScreen").style.display = "none";
       this.scene.restart();
+      var backgroundMusic = this.sound.add('background_music');
+      backgroundMusic.loop = true;
+      backgroundMusic.play();
   }.bind(this));
 
   //Restart on 'r' key
