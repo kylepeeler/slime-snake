@@ -102,3 +102,10 @@ Timeline
 # State Transition Diagram
 ![Game Screenshot](assets/documentation/FiniteStateDiagram.png)
 
+# Credits
+### Sprite art
+* Enemy Sprites, Map Tileset - Retrieved from [opengameart.org](https://opengameart.org/content/dungeon-tileset)  
+    * Author: Buch [OGA Profile Page](https://opengameart.org/users/buch)
+* Slime Sprite - Retrieved from [TiledPhysics demo](https://gitlab.com/gedl/phaser-tiled-physics)
+    * Author: Gedl [Github Profile](https://gitlab.com/gedl)
+
