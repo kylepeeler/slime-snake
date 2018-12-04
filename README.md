@@ -108,6 +108,8 @@ familiarity with the map design tooling and implementation.
 14. Add UI for user to monitor slimes
 15. Create health bars for enemies
 16. Make beginning and end states for game based on win/lose/start
+17. Add background music
+18. Add various sound effects
 
 # State Transition Diagram
 ![Game Screenshot](assets/documentation/FiniteStateDiagram.png)
@@ -116,3 +118,12 @@ familiarity with the map design tooling and implementation.
 * Original game idea - http://www.squidi.net/three/entry.php?id=185 
 * dungeon_tiles.png - https://opengameart.org/content/dungeon-tileset
 * slime sprite sheet - modified from https://gitlab.com/gedl/phaser-tiled-physics example
+* Background music - https://soundcloud.com/cole_hearted/why-am-i-still-here
+* Door sound - https://freesound.org/people/BenjaminNelan/sounds/321085/
+* Water bridge sound - https://freesound.org/people/AGFX/sounds/20433/
+* Slime swap sound - https://freesound.org/people/TheLukasBanana/sounds/417217/
+* Wizard red attack sound - https://freesound.org/people/alonsotm/sounds/396500/
+* Wizard green attack sound - https://freesound.org/people/suntemple/sounds/253176/
+* Knight red attack sound - https://freesound.org/people/smokebomb99/sounds/147290/
+* Slime attack sound - https://freesound.org/people/Zuzek06/sounds/353250/
+* Slime pickup sound - https://freesound.org/people/DrMinky/sounds/167075/
