@@ -17,76 +17,76 @@ export const TINT_MAP = {
 export const COMBAT_MAP = {
   slime: {
     red: {
-      current: 50,
-      max: 50,
-      attack: 25,
+      current: 500,
+      max: 500,
+      attack: 50,
       attackPeriod: 1000,
       lastAttack: null
     },
     green: {
-      current: 50,
-      max: 50,
-      attack: 25,
+      current: 500,
+      max: 500,
+      attack: 50,
       attackPeriod: 1000,
       lastAttack: null
     },
     blue: {
-      current: 50,
-      max: 50,
-      attack: 25,
+      current: 500,
+      max: 500,
+      attack: 50,
       attackPeriod: 1000,
       lastAttack: null
     },
     purple: {
-      current: 50,
-      max: 50,
-      attack: 25,
+      current: 500,
+      max: 500,
+      attack: 50,
       attackPeriod: 1000,
       lastAttack: null
     },
     yellow: {
-      current: 50,
-      max: 50,
-      attack: 25,
+      current: 500,
+      max: 500,
+      attack: 50,
       attackPeriod: 1000,
       lastAttack: null
     }
   },
   wizard: {
     blue: {
-      current: 25,
-      max: 25,
-      attack: 10,
+      current: 250,
+      max: 250,
+      attack: 50,
       attackPeriod: 1000,
       lastAttack: null
     },
     green: {
-      current: 55,
-      max: 55,
-      attack: 30,
+      current: 550,
+      max: 550,
+      attack: 60,
       attackPeriod: 1000,
       lastAttack: null
     },
     red: {
-      current: 30,
-      max: 30,
-      attack: 10,
+      current: 300,
+      max: 300,
+      attack: 70,
       attackPeriod: 1000,
       lastAttack: null
     }
   },
   knight: {
     red: {
-      current: 55,
-      max: 55,
-      attack: 10,
+      current: 550,
+      max: 550,
+      attack: 40,
       attackPeriod: 1000,
       lastAttack: null
     },
     silver: {
-      current: 25,
-      max: 25,
-      attack: 10,
+      current: 700,
+      max: 700,
+      attack: 60,
       attackPeriod: 1000,
       lastAttack: null
     }

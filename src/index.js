@@ -29,6 +29,8 @@ const config = {
   }
 };
 
+let gameStarted = false;
+
 function startGame(scene){
   scene.game.scene.start("default");
 }
@@ -213,11 +215,11 @@ function determineCombat(
     // Check for modified damage
 		let damage = obj1.combat.attack;
 		if (obj2.texture.key.split("-")[0] === "wizard" && obj1.color === "green") {
-			// Green slimes deal double damage against wizards
-			damage = damage * 2;
+			// Green slimes deal 150% damage against wizards
+			damage = damage * 1.5;
 		} else if (obj2.texture.key.split("-")[0] === "knight" && obj1.color === "purple") {
-			// Purple slimes deal double damage against knights
-			damage = damage * 2;
+			// Purple slimes deal 150% damage against knights
+			damage = damage * 1.5;
 		}
 
     if (SHOW_DEBUG) {
@@ -636,7 +638,7 @@ function create() {
   //Game start screen behavior
   this.input.keyboard.on("keydown_ENTER", function(event) {
       document.getElementById("startScreen").style.display = "none";
-      this.scene.restart();
+      gameStarted = true;
       var backgroundMusic = this.sound.add('background_music');
       backgroundMusic.loop = true;
       backgroundMusic.play();
@@ -755,14 +757,14 @@ function update(time, delta) {
   this.movingSlime.body.setVelocity(0);
 
   // Horizontal movement
-  if (cursors.left.isDown) {
+  if (cursors.left.isDown && gameStarted) {
     this.movingSlime.body.setVelocityX(-speed);
   } else if (cursors.right.isDown) {
     this.movingSlime.body.setVelocityX(speed);
   }
 
   // Vertical movement
-  if (cursors.up.isDown) {
+  if (cursors.up.isDown && gameStarted) {
     this.movingSlime.body.setVelocityY(-speed);
   } else if (cursors.down.isDown) {
     this.movingSlime.body.setVelocityY(speed);
