@@ -39,6 +39,7 @@ let cursors;
 
 // Runs once, loads up assets like images and audio
 function preload() {
+  this.load.audio("background_music", ["../assets/audio/slimemusic.mp3", "../assets/audio/slimemusic.wav", "../assets/audio/slimemusic.ogg"]);
   this.load.image("dungeon-tiles", "../assets/tilesets/dungeon_tiles.png");
   this.load.tilemapTiledJSON("map", "../assets/tilemaps/level1.json");
   this.load.spritesheet("slime", "assets/spritesheets/slime.png", {
@@ -309,6 +310,11 @@ function knightColliderCallback(movingSlime, knight) {
 
 // Runs once, after all assets in preload are loaded
 function create() {
+
+  var backgroundMusic = this.sound.add('background_music');
+  backgroundMusic.loop = true;
+  backgroundMusic.play();
+
   makeAnimations(this);
 
   const map = this.make.tilemap({ key: "map" });
