@@ -1,6 +1,8 @@
-# Slime Snake
-![Game Screenshot](screenshot.png)
-## CSCI 437 Final Project - Written by Kyle Peeler, Trent Spice, and Tim Hickam
+![Game Logo](assets/documentation/game-logo.png)
+# CSCI 437 Final Project - Written by Kyle Peeler, Trent Spice, and Tim Hickam
+
+## Screenshot:
+![Game Screenshot](assets/documentation/screenshot.png)
 
 TODO: Brief game description
 

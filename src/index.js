@@ -29,9 +29,13 @@ const config = {
   }
 };
 
+function startGame(scene){
+  scene.game.scene.start("default");
+}
+
 function endGame(scene) {
+  document.getElementById("gameOverScreen").style.display = "block";
   scene.game.scene.pause("default");
-  // TODO: end game stuff
 }
 
 const game = new Phaser.Game(config);
@@ -311,12 +315,7 @@ function knightColliderCallback(movingSlime, knight) {
 // Runs once, after all assets in preload are loaded
 function create() {
 
-  var backgroundMusic = this.sound.add('background_music');
-  backgroundMusic.loop = true;
-  backgroundMusic.play();
-
   makeAnimations(this);
-
   const map = this.make.tilemap({ key: "map" });
   const spawnPoint = map.findObject("points", obj => obj.name === "spawnpoint");
 
@@ -406,7 +405,7 @@ function create() {
       staticSlime.y,
       "slime"
     );
-    console.log(KEY_PARTS[1], TINT_MAP[KEY_PARTS[1]]);
+    //console.log(KEY_PARTS[1], TINT_MAP[KEY_PARTS[1]]);
     tempSlime.setTint(TINT_MAP[KEY_PARTS[1]]);
     tempSlime.color = KEY_PARTS[1];
     tempSlime.combat = Object.assign({}, COMBAT_MAP.slime[KEY_PARTS[1]]);
@@ -614,13 +613,27 @@ function create() {
         if (cursors.space.isDown) {
           if (this.slimeCollideDoorLayer) {
             this.slimeCollideDoorLayer = false;
-            alert("You win!");
+            document.getElementById("gameWinScreen").style.display = "block";
           }
         }
       }
     },
     this
   );
+
+  //Game start screen behavior
+  this.input.keyboard.on("keydown_ENTER", function(event) {
+      document.getElementById("startScreen").style.display = "none";
+      this.scene.restart();
+      var backgroundMusic = this.sound.add('background_music');
+      backgroundMusic.loop = true;
+      backgroundMusic.play();
+  }.bind(this));
+
+  //Restart on 'r' key
+  this.input.keyboard.on("keydown_R", ()=>{
+    location = window.location;
+  })
 }
 
 function isColorMatch(movingSlime, color) {
