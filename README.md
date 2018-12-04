@@ -4,8 +4,7 @@
 ## Screenshot:
 ![Game Screenshot](assets/documentation/screenshot.png)
 
-TODO: Brief game description
-
+Slime snake is a dungeon crawler adventure game based on this concept from 
 ### Requirements
 
 You need [Node.js](https://nodejs.org) to install and run scripts.
@@ -66,9 +65,9 @@ how they are born and die, and what causes the scene to change states (if it doe
 | 8 | wizard-green |
 | 9 | wizard-blue |
 ---
---
+
 # Software Engineering Plan
-##Team Member Responsibilities
+## Team Member Responsibilities
 * Kyle Peeler - Software Architect, UI Design/Implementation, Team Coordinator, Slime AI
 * Trent Spice - Map Planning, Map Generation, Collision Management, SFX, Animations
 * Tim Hickam - Integration, Combat, Slime Mechanics, Interactions
@@ -77,7 +76,8 @@ Team members were given tasks determined by consensus after finishing prior task
 given when determining who would work on new tasks e.g. Trent was primarily given map-based tasks due to his 
 familiarity with the map design tooling and implementation.
 
-Timeline
+## Timeline
+
 0. Plan mechanics for game
 1. Implement working example using Phaser
 1. ~~Implement TiledPhysics plugin example~~
@@ -96,5 +96,5 @@ Timeline
 14. Make beginning and end states for game based on win/lose/start
 
 # State Transition Diagram
-![Game Screenshot](FiniteStateDiagram.png)
+![Game Screenshot](assets/documentation/FiniteStateDiagram.png)
 
