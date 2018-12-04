@@ -30,7 +30,7 @@ You need [Node.js](https://nodejs.org) to install and run the game.
 The scene is made up of a map created using the [Tiled map editor](https://www.mapeditor.org/) and [a tile set found on open game art](https://opengameart.org/content/dungeon-tileset). The scene should have a primary pathway with a few rooms along the way for the user to pick up slimes and encounter enemies. Generally, slimes and doors should be blocked by an enemy such that a user must fight and kill the enemy to proceed through the dungeon.
 
 ### Slimes
-The user starts with one slime at the start at the game that they can use to move around the level. Other slimes are scattered around the map and the user can pick them up by colliding with them. Once they are picked up, they follow the head slime around the screen. The user can cycle between their slimes by using the a and d keys. The special ability if it is not damage resistance can be activated using the space bar, otherwise the space bar allows the slime to attack any colliding enemies. When you attack an enemy, the slime is damaged and the enemy is damaged. If the slime is destroyed, the next slime in line moves up to take its place. If the enemy is defeated, then the head slime still loses the damage, so it is possible for both the slime and the enemy to be defeated in one attack. All slimes start with 500 HP. Slimes can pass through each other so you do not need to worry about running into your own tail. The special ability of each slime is described below:
+The user starts with one slime at the start at the game that they can use to move around the level. Other slimes are scattered around the map and the user can pick them up by colliding with them. Once they are picked up, they follow the head slime around the screen. The user can cycle between their slimes by using the a and d keys. The special ability, if it is not a damage increase, can be activated using the space bar, otherwise the space bar allows the slime to attack any colliding enemies. When you attack an enemy, the slime is damaged and the enemy is damaged. If the slime is destroyed, the next slime in line moves up to take its place. If the enemy is defeated, then the head slime still loses the damage, so it is possible for both the slime and the enemy to be defeated in one attack. All slimes start with 500 HP. Slimes can pass through each other so you do not need to worry about running into your own tail. The special ability of each slime is described below:
 
 | Color | Ability |
 |-|-|
@@ -114,5 +114,6 @@ familiarity with the map design tooling and implementation.
 
 # Attributions
 * Original game idea - http://www.squidi.net/three/entry.php?id=185 
-* dungeon_tiles.png - https://opengameart.org/content/dungeon-tileset
-* slime sprite sheet - modified from https://gitlab.com/gedl/phaser-tiled-physics example
+* Dungeon Tileset - https://opengameart.org/content/dungeon-tileset
+* Slime Sprite Sheet - modified from https://gitlab.com/gedl/phaser-tiled-physics example
+* Slime Health Bar UI elements - https://getbootstrap.com/
