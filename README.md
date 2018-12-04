@@ -2,6 +2,9 @@
 # CSCI 437 Game Development Final Project
 ### Designed and Developed by Kyle Peeler, Trent Spice, and Tim Hickam
 
+## Live Demo:
+[Play it here!](https://kylepeeler.io/slime-snake/)
+
 ## Screenshot:
 ![Game Screenshot](assets/documentation/screenshot.png)
 
