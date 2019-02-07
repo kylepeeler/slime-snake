@@ -2,6 +2,21 @@
 # CSCI 437 Game Development Final Project
 ### Designed and Developed by Kyle Peeler, Trent Spice, and Tim Hickam
 
+# Electron Instructions
+
+## Install Instructions
+* `npm install` to pull Electron
+* `npm start` to build & run (should automatically go fullscreen)
+
+## Button Mappings:
+* JoyStick - Move (W/A/S/D)
+* Attack - Button 1 (R)
+* Rotate Left - Button 3 (Y)
+* Rotate Right - Button 5 (O)
+* Start Game - Button 4 (U)
+* Restart - Button 6 (P)
+* Exit - Exit Button (/)
+---------------------------------------------------------------------------------------------
 ## Live Demo:
 [Play it here!](https://kylepeeler.io/slime-snake/)
 

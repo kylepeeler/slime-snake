@@ -2,10 +2,10 @@
   "name": "slime-snake",
   "version": "1.0.9",
   "description": "A Phaser 3 Game",
-  "main": "src/index.js",
+  "main": "main.js",
   "scripts": {
     "build": "webpack",
-    "start": "npm run build && webpack-dev-server --port=8000"
+    "start": "npm run build && electron ."
   },
   "repository": {
     "type": "git",
@@ -15,7 +15,8 @@
   "devDependencies": {
     "webpack-dev-server": "^2.11.0",
     "webpack": "^3.4.1",
-    "raw-loader": "^0.5.1"
+    "raw-loader": "^0.5.1",
+    "electron": "^4.0.3"
   },
   "dependencies": {
     "phaser": "3.13.0"

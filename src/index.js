@@ -11,11 +11,11 @@ import {
 
 const config = {
   type: Phaser.AUTO,
-  width: 320,
-  height: 200,
+  width: 534,
+  height: 300,
   pixelArt: true,
   parent: "game",
-  canvasStyle: "zoom: 200%",
+  canvasStyle: "zoom: 100%;",
   scene: {
     preload: preload,
     create: create,
@@ -45,17 +45,17 @@ let cursors;
 
 // Runs once, loads up assets like images and audio
 function preload() {
-  this.load.audio("background_music", ["../assets/audio/slimemusic.mp3", "../assets/audio/slimemusic.wav", "../assets/audio/slimemusic.ogg"]);
-  this.load.audio("door_open", "../assets/audio/door-open.wav");
-  this.load.audio("s_knight_red", "../assets/audio/knight-red.wav");
-  this.load.audio("s_slime_attack", "../assets/audio/slime-attack.wav");
-  this.load.audio("slime_pickup", "../assets/audio/slime-pickup.wav");
-  this.load.audio("slime_cycle", "../assets/audio/slime-cycle.wav");
-  this.load.audio("water_drop", "../assets/audio/water-drop.wav");
-  this.load.audio("s_wizard_green", "../assets/audio/wizard-green.wav");
-  this.load.audio("s_wizard_red", "../assets/audio/wizard-red.wav");
-  this.load.image("dungeon-tiles", "../assets/tilesets/dungeon_tiles.png");
-  this.load.tilemapTiledJSON("map", "../assets/tilemaps/level1.json");
+  this.load.audio("background_music", ["assets/audio/slimemusic.mp3", "assets/audio/slimemusic.wav", "assets/audio/slimemusic.ogg"]);
+  this.load.audio("door_open", "assets/audio/door-open.wav");
+  this.load.audio("s_knight_red", "assets/audio/knight-red.wav");
+  this.load.audio("s_slime_attack", "assets/audio/slime-attack.wav");
+  this.load.audio("slime_pickup", "assets/audio/slime-pickup.wav");
+  this.load.audio("slime_cycle", "assets/audio/slime-cycle.wav");
+  this.load.audio("water_drop", "assets/audio/water-drop.wav");
+  this.load.audio("s_wizard_green", "assets/audio/wizard-green.wav");
+  this.load.audio("s_wizard_red", "assets/audio/wizard-red.wav");
+  this.load.image("dungeon-tiles", "assets/tilesets/dungeon_tiles.png");
+  this.load.tilemapTiledJSON("map", "assets/tilemaps/level1.json");
   this.load.spritesheet("slime", "assets/spritesheets/slime.png", {
     frameWidth: 16,
     frameHeight: 16,
@@ -572,10 +572,16 @@ function create() {
   const camera = this.cameras.main;
 
   // Set up the arrows to control the camera
-  cursors = this.input.keyboard.createCursorKeys();
+  cursors = this.input.keyboard.addKeys({
+    up: Phaser.Input.Keyboard.KeyCodes.W,
+    down: Phaser.Input.Keyboard.KeyCodes.S,
+    left: Phaser.Input.Keyboard.KeyCodes.A,
+    right: Phaser.Input.Keyboard.KeyCodes.D,
+    space: Phaser.Input.Keyboard.KeyCodes.R
+  });
 
-  this.input.keyboard.on("keydown_A", deRotateSlimes, this);
-  this.input.keyboard.on("keydown_D", rotateSlimes, this);
+  this.input.keyboard.on("keydown_Y", deRotateSlimes, this);
+  this.input.keyboard.on("keydown_O", rotateSlimes, this);
 
   // Constrain the camera so that it isn't allowed to move outside the width/height of tilemap
   camera.startFollow(this.movingSlime);
@@ -701,17 +707,20 @@ function create() {
   );
 
   //Game start screen behavior
-  this.input.keyboard.on("keydown_ENTER", function(event) {
-      document.getElementById("startScreen").style.display = "none";
-      gameStarted = true;
-      var backgroundMusic = this.sound.add('background_music', {volume: 0.3});
-      backgroundMusic.loop = true;
-      backgroundMusic.play();
+  this.input.keyboard.on("keydown_U", function(event) {
+      if (!gameStarted){
+        document.getElementById("startScreen").style.display = "none";
+        gameStarted = true;
+        var backgroundMusic = this.sound.add('background_music', { volume: 0.3 });
+        backgroundMusic.loop = true;
+        backgroundMusic.play();
+      }
   }.bind(this));
 
   //Restart on 'r' key
-  this.input.keyboard.on("keydown_R", ()=>{
+  this.input.keyboard.on("keydown_P", ()=>{
     location = window.location;
+    gameStarted = false;
   })
 }
 
@@ -733,7 +742,7 @@ function updateStatuses(mainSlime, followingSlimes) {
     }
     html +=
       "<div class='sprite-info main'>" +
-      "<img class='slime-img' src='../assets/ui/slime-" +
+      "<img class='slime-img' src='assets/ui/slime-" +
       mainSlime.color +
       ".png' />" +
       "<div class='progress'><div class='progress-bar bg-" +
@@ -760,7 +769,7 @@ function updateStatuses(mainSlime, followingSlimes) {
       }
       html +=
         "<div class='sprite-info following'>" +
-        "<img class='slime-img' src='../assets/ui/slime-" +
+        "<img class='slime-img' src='assets/ui/slime-" +
         slime.color +
         ".png' />" +
         "<div class='progress'><div class='progress-bar bg-" +
